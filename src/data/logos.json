@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Y Combinator",
+    "logo": "/logos/y-combinator.svg",
+    "funding": "$500k for ~7%"
+  },
+  {
+    "name": "Techstars",
+    "logo": "/logos/techstars.svg",
+    "funding": "$220k for ~5–7%"
+  },
+  {
+    "name": "500 Global",
+    "logo": "/logos/500-global.svg",
+    "funding": "$112.5k for 6%"
+  },
+  {
+    "name": "Antler",
+    "logo": "/logos/antler.svg",
+    "funding": "$200k–$250k for 8–9%"
+  },
+  {
+    "name": "Entrepreneur First",
+    "logo": "/logos/entrepreneur-first.svg",
+    "funding": "$250k for ~9%"
+  },
+  {
+    "name": "a16z Speedrun",
+    "logo": "/logos/a16z-speedrun.png",
+    "funding": "$175k–$1M for ~7–10%"
+  },
+  {
+    "name": "South Park Commons",
+    "logo": "/logos/south-park-commons.svg",
+    "funding": "$400k for 7% + $600k guaranteed follow-on"
+  },
+  {
+    "name": "HF0 Residency",
+    "logo": "/logos/hf0-residency.svg",
+    "funding": "$1M uncapped for 5% or $500k uncapped + 3%"
+  },
+  {
+    "name": "NEO",
+    "logo": "/logos/neo.svg",
+    "funding": "$600k via uncapped SAFE with $10M floor valuation"
+  },
+  {
+    "name": "Sequoia Arc",
+    "logo": "/logos/sequoia-arc.svg",
+    "funding": "$1M"
+  },
+  {
+    "name": "PearX",
+    "logo": "/logos/pearx.svg",
+    "funding": "$250k–$2M"
+  },
+  {
+    "name": "Pioneer",
+    "logo": "/logos/pioneer.svg",
+    "funding": "$20k for 1%"
+  },
+  {
+    "name": "LAUNCH",
+    "logo": "/logos/launch.svg",
+    "funding": "$125k for 6–7%"
+  },
+  {
+    "name": "The Mint",
+    "logo": "/logos/the-mint.svg",
+    "funding": "$500k for 10%"
+  },
+  {
+    "name": "AngelPad",
+    "logo": "/logos/angelpad.svg",
+    "funding": "$120k for 7%"
+  },
+  {
+    "name": "Betaworks AI Camp",
+    "logo": "/logos/betaworks-ai-camp.svg",
+    "funding": "$500k"
+  },
+  {
+    "name": "Greylock Edge",
+    "logo": "/logos/greylock-edge.svg",
+    "funding": "SAFE note + $500k+ in credits"
+  },
+  {
+    "name": "Conviction Embed",
+    "logo": "/logos/conviction-embed.svg",
+    "funding": "$150k uncapped MFN SAFE"
+  },
+  {
+    "name": "OpenAI Converge",
+    "logo": "/logos/openai-converge.svg",
+    "funding": "$1M equity investment"
+  },
+  {
+    "name": "Startup Wise Guys",
+    "logo": "/logos/startup-wise-guys.svg",
+    "funding": "up to €65k for equity"
+  },
+  {
+    "name": "APX",
+    "logo": "/logos/apx.svg",
+    "funding": "up to €500k, typically €50k for 5%"
+  },
+  {
+    "name": "Founders Fellowship",
+    "logo": "/logos/founders-fellowship.svg",
+    "funding": "$150k for 5–10%"
+  },
+  {
+    "name": "Seedcamp",
+    "logo": "/logos/seedcamp.svg",
+    "funding": "€100k–€200k for 7–7.5%"
+  },
+  {
+    "name": "Google for Startups",
+    "logo": "/logos/google-for-startups.svg",
+    "funding": "up to $100k"
+  },
+  {
+    "name": "Accel Atoms",
+    "logo": "/logos/accel-atoms.svg",
+    "funding": "up to $500k–$1M"
+  },
+  {
+    "name": "AI Grant",
+    "logo": "/logos/ai-grant.svg",
+    "funding": "$250k uncapped"
+  },
+  {
+    "name": "AI2 Incubator",
+    "logo": "/logos/ai2-incubator.svg",
+    "funding": "$50k–$150k"
+  },
+  {
+    "name": "Afore Capital",
+    "logo": "/logos/afore-capital.svg",
+    "funding": "$100k–$500k"
+  },
+  {
+    "name": "Berkeley SkyDeck",
+    "logo": "/logos/berkeley-skydeck.svg",
+    "funding": "$200k"
+  },
+  {
+    "name": "Soma Capital",
+    "logo": "/logos/soma-capital.svg",
+    "funding": "$100k"
+  }
+]
