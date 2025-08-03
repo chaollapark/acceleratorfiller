@@ -4,9 +4,13 @@ import React from 'react';
 import logos from '@/data/logos.json';
 
 const LogoScroller: React.FC = () => {
+  // Temporarily hidden - return null to hide the entire section
+  return null;
+  
+  // Original component code (commented out for easy restoration)
+  /*
   return (
     <section className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 py-16 relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-blue-600/10"></div>
       
       <div className="relative z-10 container mx-auto px-4">
@@ -20,12 +24,10 @@ const LogoScroller: React.FC = () => {
         </div>
         
         <div className="relative">
-          {/* Gradient overlays for smooth fade effect */}
           <div className="absolute left-0 top-0 w-32 h-full bg-gradient-to-r from-gray-900 to-transparent z-10"></div>
           <div className="absolute right-0 top-0 w-32 h-full bg-gradient-to-l from-gray-900 to-transparent z-10"></div>
           
           <div className="flex animate-scroll space-x-16">
-            {/* Duplicate logos for seamless loop */}
             {[...logos, ...logos].map((logo, index) => (
               <div key={index} className="flex-shrink-0 group">
                 <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover-lift min-w-[200px]">
@@ -50,6 +52,7 @@ const LogoScroller: React.FC = () => {
       </div>
     </section>
   );
+  */
 };
 
 export default LogoScroller;
