@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+html, body { height: 100%; }
+body { @apply bg-[#f8fafc] text-ink antialiased; }
+.container { @apply max-w-6xl mx-auto px-4; }
+.btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-semibold shadow-sm transition; }
+.btn-primary { @apply bg-primary text-white hover:opacity-90; }
+.card { @apply bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-glass; }
+.badge { @apply inline-block rounded-full bg-sky-100 text-sky-700 text-sm font-semibold px-3 py-1; }
+.meta { @apply text-slate-600; } 

@@ -39,3 +39,11 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+node_modules
+.next
+.env
+.env.local
+dist
+.DS_Store
+.env.example

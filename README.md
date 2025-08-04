@@ -1,47 +1,24 @@
-# Accelerator Filler
+# Apply to 32 Accelerators — Modern Next.js App
 
-A Next.js application for managing accelerator applications.
+Pay **€50**, upload your YC-style application, receive materials adapted for **32 accelerators together**.
 
-## Environment Variables
+## Stack
+- **Next.js 14** (App Router, TypeScript)
+- **Tailwind CSS**
+- **Stripe Checkout** (fixed €50)
+- **Google Cloud Storage** signed URLs (compatible with Firebase Storage buckets)
+- EU-friendly wording & GDPR stub
 
-The following environment variables are required for deployment:
-
-### MongoDB
-- `MONGODB_URI` - Your MongoDB connection string
-
-### Stripe
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Your Stripe publishable key (client-side)
-- `STRIPE_SECRET_KEY` - Your Stripe secret key (server-side)
-
-## Development
-
+## Run locally
 ```bash
+cp env.example .env
+# Set STRIPE_SECRET_KEY, NEXT_PUBLIC_SITE_URL, GCS_BUCKET, GOOGLE_APPLICATION_CREDENTIALS
 npm install
 npm run dev
+# Open http://localhost:3000
 ```
 
-## Build
-
-```bash
-npm run build
-```
-
-## Deployment
-
-Make sure to set the required environment variables in your deployment platform (Vercel, Netlify, etc.).
-
-### Vercel Deployment
-
-1. Connect your repository to Vercel
-2. Add the environment variables in the Vercel dashboard:
-   - `MONGODB_URI`
-   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-   - `STRIPE_SECRET_KEY`
-3. Deploy
-
-## Features
-
-- YC-style application form
-- Stripe payment integration
-- MongoDB data storage
-- Modern Next.js 14 with App Router 
+## Notes
+- Use an EU region bucket (e.g., eu, europe-west1, or Firebase Storage EU).
+- Add a lifecycle rule to auto-delete uploads/ after 30 days.
+- For production, add Stripe webhooks + metadata persistence if needed. 
