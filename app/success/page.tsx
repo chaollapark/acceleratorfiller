@@ -1,10 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 export default function SuccessPage() {
-  const params = useMemo(() => new URLSearchParams(window.location.search), []);
-  const sessionId = params.get("session_id");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSessionId(params.get("session_id"));
+  }, []);
 
   return (
     <main className="container py-16">
