@@ -206,6 +206,19 @@ export default function HomePage() {
         <p className="meta text-xl max-w-3xl mx-auto">
           Save <strong className="text-blue-600">15 Hours applying</strong> send <strong className="text-blue-600">32+ accelerators applications</strong>.
         </p>
+        
+        {/* Product Hunt Badge */}
+        <div className="flex justify-center mt-8">
+          <a href="https://www.producthunt.com/products/one-application-32-startup-accelerators?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-one&#0045;application&#0045;32&#0045;startup&#0045;accelerators" target="_blank" rel="noopener noreferrer">
+            <img 
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1001896&theme=light&t=1754400109440" 
+              alt="one&#0032;application&#0045;&#0062;32&#0032;startup&#0032;accelerators - Save&#0032;15&#0032;hours&#0032;applying&#0032;to&#0032;startup&#0032;accelerators | Product Hunt" 
+              style={{ width: '250px', height: '54px' }} 
+              width="250" 
+              height="54" 
+            />
+          </a>
+        </div>
       </header>
 
       {/* Process Steps */}
