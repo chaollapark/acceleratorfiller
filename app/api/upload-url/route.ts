@@ -21,6 +21,15 @@ const ALLOWED = new Set([
   "text/plain"
 ]);
 
+const VIDEO_ALLOWED = new Set([
+  "video/mp4",
+  "video/mov",
+  "video/avi",
+  "video/wmv",
+  "video/flv",
+  "video/webm"
+]);
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -34,7 +43,7 @@ export async function POST(req: Request) {
       if (!paid) return NextResponse.json({ error: "Payment required" }, { status: 403 });
     }
 
-    if (!ALLOWED.has(mime)) {
+    if (!ALLOWED.has(mime) && !VIDEO_ALLOWED.has(mime)) {
       return NextResponse.json({ error: "Invalid file type" }, { status: 400 });
     }
 

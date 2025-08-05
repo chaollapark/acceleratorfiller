@@ -3,15 +3,26 @@
 import { useState } from "react";
 
 const MAX_MB = 15;
+const VIDEO_MAX_MB = 100;
 const ALLOWED = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 ];
+const VIDEO_ALLOWED = [
+  "video/mp4",
+  "video/mov",
+  "video/avi",
+  "video/wmv",
+  "video/flv",
+  "video/webm"
+];
 
 export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [demoVideo, setDemoVideo] = useState<File | null>(null);
+  const [presentationVideo, setPresentationVideo] = useState<File | null>(null);
   const [pastedContent, setPastedContent] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [uploaded, setUploaded] = useState(false);
@@ -55,16 +66,16 @@ export default function HomePage() {
     e.preventDefault();
     
     // Check if user provided either file or content
-    if (!file && !pastedContent.trim()) {
-      return alert("Please upload a file or paste your application content.");
+    if (!file && !pastedContent.trim() && !demoVideo && !presentationVideo) {
+      return alert("Please upload a file, paste your application content, or upload videos.");
     }
 
-    // Handle file upload if provided
+    // Handle application file upload if provided
     if (file) {
-      if (!ALLOWED.includes(file.type)) return alert("Only PDF or DOC/DOCX are allowed.");
-      if (file.size > MAX_MB * 1024 * 1024) return alert(`Max size is ${MAX_MB} MB.`);
+      if (!ALLOWED.includes(file.type)) return alert("Only PDF or DOC/DOCX are allowed for application files.");
+      if (file.size > MAX_MB * 1024 * 1024) return alert(`Max size is ${MAX_MB} MB for application files.`);
 
-      setStatus("Uploading file…");
+      setStatus("Uploading application file…");
       const res = await fetch("/api/upload-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,6 +92,50 @@ export default function HomePage() {
       if (!put.ok) return setStatus("Upload failed.");
       
       setUploadId(key);
+    }
+
+    // Handle demo video upload if provided
+    if (demoVideo) {
+      if (!VIDEO_ALLOWED.includes(demoVideo.type)) return alert("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
+      if (demoVideo.size > VIDEO_MAX_MB * 1024 * 1024) return alert(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
+
+      setStatus("Uploading demo video…");
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: `demo_${demoVideo.name}`, 
+          mime: demoVideo.type,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) return setStatus("Upload failed.");
+      const { url, key } = await res.json();
+
+      const put = await fetch(url, { method: "PUT", body: demoVideo, headers: { "Content-Type": demoVideo.type } });
+      if (!put.ok) return setStatus("Upload failed.");
+    }
+
+    // Handle presentation video upload if provided
+    if (presentationVideo) {
+      if (!VIDEO_ALLOWED.includes(presentationVideo.type)) return alert("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
+      if (presentationVideo.size > VIDEO_MAX_MB * 1024 * 1024) return alert(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
+
+      setStatus("Uploading presentation video…");
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: `presentation_${presentationVideo.name}`, 
+          mime: presentationVideo.type,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) return setStatus("Upload failed.");
+      const { url, key } = await res.json();
+
+      const put = await fetch(url, { method: "PUT", body: presentationVideo, headers: { "Content-Type": presentationVideo.type } });
+      if (!put.ok) return setStatus("Upload failed.");
     }
 
     // Handle pasted content if provided
@@ -108,21 +163,29 @@ export default function HomePage() {
   if (uploaded) {
     return (
       <main className="container py-16">
-        <div className="card max-w-xl mx-auto text-center">
-          <h1 className="text-2xl font-bold text-green-600">✅ Upload Successful!</h1>
-          <p className="meta mt-2">Your application has been uploaded. Now complete payment to get your 32-accelerator pack.</p>
+        <div className="card max-w-xl mx-auto text-center success-animation">
+          <div className="text-6xl mb-4">🎉</div>
+          <h1 className="text-3xl font-bold gradient-text mb-4">Upload Successful!</h1>
+          <p className="meta text-lg mb-8">Your application has been uploaded. Now complete payment to get your 32-accelerator pack.</p>
           
-          <div className="mt-6">
+          <div className="mb-6">
             <button
-              className="btn btn-primary text-lg px-6 py-3"
+              className="btn btn-primary text-lg px-8 py-4"
               onClick={startCheckoutWithUpload}
               disabled={loading}
             >
-              {loading ? "Loading…" : "Pay €50 to get your accelerator pack"}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <div className="loading">⏳</div>
+                  Processing...
+                </span>
+                              ) : (
+                  "Pay €99 to get your accelerator pack"
+                )}
             </button>
           </div>
           
-          <p className="text-sm text-gray-600 mt-4">
+          <p className="text-sm text-slate-600">
             We'll deliver your 32-accelerator pack in ~3 business days after payment.
           </p>
         </div>
@@ -132,138 +195,214 @@ export default function HomePage() {
 
   return (
     <main className="container py-16">
-      <header className="text-center space-y-4">
-        <span className="badge">One application → 32+ accelerators</span>
-        <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-slate-900">
+      {/* Hero Section */}
+      <header className="text-center space-y-6 mb-16">
+        <div className="badge text-base px-6 py-3">
+          One application → 32+ accelerators
+        </div>
+        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight gradient-text">
           Turn your YC-application into 32+ applications.
         </h1>
-        <p className="meta">
-          Save <strong>15 Hours applying</strong> send <strong>32+ accelerators applications</strong>.
+        <p className="meta text-xl max-w-3xl mx-auto">
+          Save <strong className="text-blue-600">15 Hours applying</strong> send <strong className="text-blue-600">32+ accelerators applications</strong>.
         </p>
       </header>
 
-      <section className="mt-10 grid md:grid-cols-3 gap-4">
-        <div className="card">
-          <h3 className="font-semibold mb-2">1) Upload your YC application</h3>
-          <p className="meta">PDF, DOC/DOCX, or paste content. We delete files after 30 days.</p>
-        </div>
-        <div className="card">
-          <h3 className="font-semibold mb-2">2) Pay €50</h3>
-          <p className="meta">Is 15 hours of your time worth €50?</p>
-        </div>
-        <div className="card">
-          <h3 className="font-semibold mb-2">3) Receive your 32-accelerator pack</h3>
-          <p className="meta">Save 15 hours of applying manually - optimize!</p>
+      {/* Process Steps */}
+      <section className="mb-16">
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="card group">
+            <div className="text-3xl mb-4">📄</div>
+            <h3 className="text-xl font-bold mb-3">1) Upload your YC application</h3>
+            <p className="meta">PDF, DOC/DOCX, videos, or paste content. We delete files after 30 days.</p>
+          </div>
+          <div className="card group">
+            <div className="text-3xl mb-4">💳</div>
+            <h3 className="text-xl font-bold mb-3">2) Pay €99</h3>
+            <p className="meta">Is 15 hours of your time worth €99?</p>
+          </div>
+          <div className="card group">
+            <div className="text-3xl mb-4">🚀</div>
+            <h3 className="text-xl font-bold mb-3">3) Receive your 32-accelerator pack</h3>
+            <p className="meta">Save 15 hours of applying manually - optimize!</p>
+          </div>
         </div>
       </section>
 
-      <div className="mt-10">
-        <div className="card max-w-2xl mx-auto">
-          <h2 className="text-xl font-bold">Upload your YC application</h2>
-          <p className="meta mt-2">Upload your application first, then pay to get your 32-accelerator pack.</p>
+      {/* Upload Form */}
+      <div className="mb-16">
+        <div className="card max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold gradient-text mb-4">Upload your YC application</h2>
+            <p className="meta text-lg">Upload your application and optional videos first, then pay to get your 32-accelerator pack.</p>
+          </div>
 
-          <form className="mt-6 space-y-6" onSubmit={onSubmit}>
+          <form className="space-y-8" onSubmit={onSubmit}>
             {/* File Upload Section */}
-            <div>
-              <h3 className="font-semibold mb-2">Upload a file</h3>
-              <p className="text-sm text-slate-800 font-medium mb-2">PDF or DOC/DOCX, up to {MAX_MB} MB. We delete files after 30 days.</p>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="block w-full text-sm"
-              />
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-800">Upload your application file</h3>
+              <p className="text-slate-600">PDF or DOC/DOCX, up to {MAX_MB} MB. We delete files after 30 days.</p>
+              
+              <div className="file-upload">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  id="application-file"
+                />
+                <label htmlFor="application-file" className="file-upload-label">
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">📁</div>
+                    <div className="font-semibold text-slate-700">
+                      {file ? file.name : "Choose your application file"}
+                    </div>
+                    <div className="text-sm text-slate-500 mt-1">
+                      {file ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : "PDF, DOC, or DOCX up to 15MB"}
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Video Upload Section */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-800">Upload videos (optional)</h3>
+              <p className="text-slate-600">Upload your demo video and/or presentation video. MP4, MOV, AVI, WMV, FLV, or WebM, up to {VIDEO_MAX_MB} MB each.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="file-upload">
+                  <input
+                    type="file"
+                    accept=".mp4,.mov,.avi,.wmv,.flv,.webm"
+                    onChange={(e) => setDemoVideo(e.target.files?.[0] || null)}
+                    id="demo-video"
+                  />
+                  <label htmlFor="demo-video" className="file-upload-label">
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">🎬</div>
+                      <div className="font-semibold text-slate-700">
+                        {demoVideo ? demoVideo.name : "Demo Video"}
+                      </div>
+                      <div className="text-sm text-slate-500 mt-1">
+                        {demoVideo ? `${(demoVideo.size / 1024 / 1024).toFixed(1)} MB` : "Optional"}
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                
+                <div className="file-upload">
+                  <input
+                    type="file"
+                    accept=".mp4,.mov,.avi,.wmv,.flv,.webm"
+                    onChange={(e) => setPresentationVideo(e.target.files?.[0] || null)}
+                    id="presentation-video"
+                  />
+                  <label htmlFor="presentation-video" className="file-upload-label">
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">🎥</div>
+                      <div className="font-semibold text-slate-700">
+                        {presentationVideo ? presentationVideo.name : "Presentation Video"}
+                      </div>
+                      <div className="text-sm text-slate-500 mt-1">
+                        {presentationVideo ? `${(presentationVideo.size / 1024 / 1024).toFixed(1)} MB` : "Optional"}
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
             </div>
 
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full border-t border-slate-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-slate-700 font-medium">OR</span>
+                <span className="px-4 bg-white text-slate-500 font-medium">OR</span>
               </div>
             </div>
 
             {/* Paste Content Section */}
-            <div>
-              <h3 className="font-semibold mb-2">Paste your application content</h3>
-              <p className="text-sm text-slate-800 font-medium mb-2">Paste your application content below:</p>
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-800">Paste your application content</h3>
+              <p className="text-slate-600">Paste your application content below:</p>
               <textarea
                 value={pastedContent}
                 onChange={(e) => setPastedContent(e.target.value)}
                 placeholder="Paste your YC application content here... Don't forget the founder profile!!!"
-                className="w-full h-64 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="enhanced-textarea h-64"
               />
             </div>
             
-            <label className="flex items-start gap-2 text-sm">
-              <input type="checkbox" required /> I agree to the{" "}
-              <a className="underline" href="/legal" target="_blank">Terms & Privacy</a>.
-            </label>
-            <button type="submit" className="btn btn-primary">
-              Submit application
-            </button>
+            {/* Terms and Submit */}
+            <div className="space-y-6">
+              <label className="flex items-start gap-3 text-sm">
+                <input type="checkbox" required className="enhanced-checkbox mt-1" />
+                <span className="text-slate-700">
+                  I agree to the{" "}
+                  <a className="text-blue-600 hover:text-blue-700 underline font-medium" href="/legal" target="_blank">Terms & Privacy</a>.
+                </span>
+              </label>
+              
+              <button type="submit" className="btn btn-primary w-full text-lg py-4">
+                Submit application
+              </button>
+            </div>
           </form>
 
-          {status && <p className="meta mt-4">{status}</p>}
+          {status && (
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+              <p className="text-blue-800 font-medium">{status}</p>
+            </div>
+          )}
         </div>
       </div>
 
-      <section className="mt-16">
-        <h2 className="text-xl font-bold">We send applications to 32+ accelerators</h2>
-        <p className="meta">Missing your favorite accelerator? <a href="mailto:madan@acceleratorfiller.xyz">Let us know</a> and we'll add it.</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 mt-4 opacity-80">
+      {/* Accelerators Section */}
+      <section className="mb-16">
+        <div className="section-header">
+          <h2>We send applications to 25+ accelerators</h2>
+          <p className="meta">Missing your favorite accelerator? <a href="mailto:madan@acceleratorfiller.xyz" className="text-blue-600 hover:text-blue-700 underline">Let us know</a> and we'll add it.</p>
+        </div>
+        
+        <div className="accelerator-grid">
           {[
-            { name: "Y Combinator", logo: "/logos/yc.png" },
-            { name: "Techstars", logo: "/logos/techstars.png" },
-            { name: "500 Startups", logo: "/logos/500startups.png" },
-            { name: "Plug and Play", logo: "/logos/plugandplay.png" },
-            { name: "MassChallenge", logo: "/logos/masschallenge.png" },
-            { name: "Startupbootcamp", logo: "/logos/startupbootcamp.png" },
-            { name: "Seedcamp", logo: "/logos/seedcamp.png" },
-            { name: "Founders Factory", logo: "/logos/foundersfactory.png" },
-            { name: "Antler", logo: "/logos/antler.png" },
-            { name: "Entrepreneur First", logo: "/logos/ef.png" },
-            { name: "Station F", logo: "/logos/stationf.png" },
-            { name: "Founders Institute", logo: "/logos/foundersinstitute.png" },
-            { name: "StartX", logo: "/logos/startx.png" },
-            { name: "Alchemist", logo: "/logos/alchemist.png" },
-            { name: "Dreamit", logo: "/logos/dreamit.png" },
-            { name: "Launchpad LA", logo: "/logos/launchpadla.png" },
-            { name: "MuckerLab", logo: "/logos/muckerlab.png" },
-            { name: "Amplify.LA", logo: "/logos/amplifyla.png" },
-            { name: "Boost VC", logo: "/logos/boostvc.png" },
-            { name: "IndieBio", logo: "/logos/indiebio.png" },
-            { name: "Y Combinator", logo: "/logos/yc.png" },
-            { name: "Techstars", logo: "/logos/techstars.png" },
-            { name: "500 Startups", logo: "/logos/500startups.png" },
-            { name: "Plug and Play", logo: "/logos/plugandplay.png" },
-            { name: "MassChallenge", logo: "/logos/masschallenge.png" },
-            { name: "Startupbootcamp", logo: "/logos/startupbootcamp.png" },
-            { name: "Seedcamp", logo: "/logos/seedcamp.png" },
-            { name: "Founders Factory", logo: "/logos/foundersfactory.png" },
-            { name: "Antler", logo: "/logos/antler.png" },
-            { name: "Entrepreneur First", logo: "/logos/ef.png" },
-            { name: "Station F", logo: "/logos/stationf.png" },
-            { name: "Founders Institute", logo: "/logos/foundersinstitute.png" },
-            { name: "StartX", logo: "/logos/startx.png" },
-            { name: "Alchemist", logo: "/logos/alchemist.png" },
-            { name: "Dreamit", logo: "/logos/dreamit.png" },
-            { name: "Launchpad LA", logo: "/logos/launchpadla.png" },
-            { name: "MuckerLab", logo: "/logos/muckerlab.png" },
-            { name: "Amplify.LA", logo: "/logos/amplifyla.png" },
-            { name: "Boost VC", logo: "/logos/boostvc.png" },
-            { name: "IndieBio", logo: "/logos/indiebio.png" }
+            { name: "Y Combinator", logo: "/logos/ycombinator.com.png" },
+            { name: "Techstars", logo: "/logos/techstars.com.png" },
+            { name: "500 Startups", logo: "/logos/500.co.png" },
+            { name: "Seedcamp", logo: "/logos/seedcamp.com.png" },
+            { name: "Antler", logo: "/logos/antler.co.png" },
+            { name: "Entrepreneur First", logo: "/logos/joinef.com.png" },
+            { name: "Andreessen Horowitz", logo: "/logos/a16z.com.png" },
+            { name: "Accel", logo: "/logos/accel.com.png" },
+            { name: "Greylock", logo: "/logos/greylock.com.png" },
+            { name: "Sequoia", logo: "/logos/sequoia.com.png" },
+            { name: "Boost VC", logo: "/logos/boost.vc.png" },
+            { name: "Betaworks", logo: "/logos/betaworks.com.png" },
+            { name: "AngelPad", logo: "/logos/angelpad.org.png" },
+            { name: "Pear VC", logo: "/logos/pear.vc.png" },
+            { name: "NEO", logo: "/logos/neo.com.png" },
+            { name: "Launch", logo: "/logos/launch.co.png" },
+            { name: "Pioneer", logo: "/logos/pioneer.app.png" },
+            { name: "South Park Commons", logo: "/logos/southparkcommons.com.png" },
+            { name: "Soma Capital", logo: "/logos/somacap.com.png" },
+            { name: "SkyDeck", logo: "/logos/skydeck.berkeley.edu.png" },
+            { name: "Startup Wise Guys", logo: "/logos/startupwiseguys.com.png" },
+            { name: "Google for Startups", logo: "/logos/startup.google.com.png" },
+            { name: "HF0", logo: "/logos/hf0.com.png" },
+            { name: "Conviction", logo: "/logos/conviction.com.png" },
+            { name: "BTV", logo: "/logos/btv.vc.png" },
+            { name: "APX", logo: "/logos/apx.vc.png" },
+            { name: "Afore", logo: "/logos/afore.vc.png" },
+            { name: "OpenAI", logo: "/logos/openai.com.png" }
           ].map((accelerator, i) => (
-            <div key={i} className="card text-center py-4 px-2 text-slate-500 hover:opacity-100 transition-opacity">
-              <div className="w-8 h-8 mx-auto mb-2">
+            <div key={i} className="accelerator-item">
+              <div className="w-10 h-10 mx-auto mb-3">
                 <img 
                   src={accelerator.logo} 
                   alt={accelerator.name}
                   className="w-full h-full object-contain"
                   onError={(e) => {
-                    // Fallback to text if image fails to load
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
@@ -276,30 +415,38 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mt-16">
-        <h2 className="text-xl font-bold">FAQs</h2>
-        <div className="grid md:grid-cols-3 gap-4 mt-4">
+      {/* FAQs Section */}
+      <section className="mb-16">
+        <div className="section-header">
+          <h2>Frequently Asked Questions</h2>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-6">
           <div className="card">
-            <p className="font-semibold">Do you submit on my behalf?</p>
+            <div className="text-2xl mb-3">🤝</div>
+            <p className="font-bold text-lg mb-2">Do you submit on my behalf?</p>
             <p className="meta">Yes. We'll send you a link to your application after payment. If it doesn't work, we'll resend it.</p>
           </div>
           <div className="card">
-            <p className="font-semibold">Turnaround</p>
+            <div className="text-2xl mb-3">⚡</div>
+            <p className="font-bold text-lg mb-2">Turnaround</p>
             <p className="meta">3 business days max, usually instantly</p>
           </div>
           <div className="card">
-            <p className="font-semibold">Refunds</p>
+            <div className="text-2xl mb-3">💰</div>
+            <p className="font-bold text-lg mb-2">Refunds</p>
             <p className="meta">Full refund before we start; proportional refund if we miss the timeline.</p>
           </div>
         </div>
       </section>
 
-      <footer className="text-center mt-16 text-sm text-slate-600">
+      {/* Footer */}
+      <footer className="text-center text-sm text-slate-600 space-y-2">
         <p>
           <strong>Disclaimer:</strong> Not affiliated with Y Combinator (YC) or any accelerator. No admissions are guaranteed.
         </p>
-        <p className="mt-2">
-          <a className="underline" href="/legal">Terms, Privacy & GDPR</a>
+        <p>
+          <a className="text-blue-600 hover:text-blue-700 underline" href="/legal">Terms, Privacy & GDPR</a>
         </p>
       </footer>
     </main>

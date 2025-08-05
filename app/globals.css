@@ -2,12 +2,158 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: light; }
-html, body { height: 100%; }
-body { @apply bg-[#f8fafc] text-ink antialiased; }
-.container { @apply max-w-6xl mx-auto px-4; }
-.btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-semibold shadow-sm transition; }
-.btn-primary { @apply bg-primary text-white hover:opacity-90; }
-.card { @apply bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-glass; }
-.badge { @apply inline-block rounded-full bg-sky-100 text-sky-700 text-sm font-semibold px-3 py-1; }
-.meta { @apply text-slate-900 font-semibold; } 
+:root { 
+  color-scheme: light; 
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+html, body { 
+  height: 100%; 
+  scroll-behavior: smooth;
+}
+
+body { 
+  @apply bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 text-slate-900 antialiased;
+  background-attachment: fixed;
+}
+
+.container { 
+  @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8; 
+}
+
+/* Enhanced Button Styles */
+.btn { 
+  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95;
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary { 
+  background: var(--primary-gradient);
+  @apply text-white hover:shadow-lg hover:shadow-blue-500/25;
+}
+
+.btn-secondary {
+  background: var(--secondary-gradient);
+  @apply text-white hover:shadow-lg hover:shadow-pink-500/25;
+}
+
+/* Enhanced Card Styles */
+.card { 
+  @apply bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  @apply shadow-2xl transform -translate-y-1;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Enhanced Badge */
+.badge { 
+  background: var(--accent-gradient);
+  @apply inline-block rounded-full text-white text-sm font-bold px-4 py-2 shadow-lg;
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+}
+
+/* Enhanced Typography */
+.meta { 
+  @apply text-slate-700 font-medium leading-relaxed; 
+}
+
+/* Enhanced Form Elements */
+.form-input {
+  @apply w-full px-4 py-3 border border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.form-input:hover {
+  @apply border-slate-300;
+}
+
+/* File Upload Styling */
+.file-upload {
+  @apply relative overflow-hidden inline-block w-full cursor-pointer;
+}
+
+.file-upload input[type=file] {
+  @apply absolute inset-0 w-full h-full opacity-0 cursor-pointer;
+}
+
+.file-upload-label {
+  @apply flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-slate-300 rounded-xl bg-white/60 backdrop-blur-sm transition-all duration-200;
+  @apply hover:border-blue-400 hover:bg-blue-50/50;
+}
+
+.file-upload-label:hover {
+  @apply transform scale-[1.02];
+}
+
+/* Enhanced Textarea */
+.enhanced-textarea {
+  @apply w-full p-4 border border-slate-200 rounded-xl resize-none transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced Section Headers */
+.section-header {
+  @apply text-center mb-12;
+}
+
+.section-header h2 {
+  @apply text-3xl md:text-4xl font-bold mb-4;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced Grid Layouts */
+.accelerator-grid {
+  @apply grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4;
+}
+
+.accelerator-item {
+  @apply card text-center py-4 px-3 text-slate-600 hover:text-slate-900 transition-all duration-300;
+  @apply hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50;
+}
+
+/* Enhanced Checkbox */
+.enhanced-checkbox {
+  @apply w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 focus:ring-2;
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Success Animation */
+@keyframes success-bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+  40%, 43% { transform: translate3d(0, -30px, 0); }
+  70% { transform: translate3d(0, -15px, 0); }
+  90% { transform: translate3d(0, -4px, 0); }
+}
+
+.success-animation {
+  animation: success-bounce 1s ease-in-out;
+} 

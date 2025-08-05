@@ -10,8 +10,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-100/30 via-transparent to-transparent z-0" />
-        <div className="relative z-10">
+        {/* Animated background gradients */}
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20" />
+        <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-100/20 via-transparent to-transparent animate-pulse" />
+        <div className="fixed inset-0 bg-[radial-gradient(circle_at_30%_20%,_var(--tw-gradient-stops))] from-purple-100/10 via-transparent to-transparent" />
+        
+        {/* Content */}
+        <div className="relative z-10 min-h-screen">
           {children}
         </div>
       </body>
