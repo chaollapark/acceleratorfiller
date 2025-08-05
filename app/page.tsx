@@ -138,7 +138,7 @@ export default function HomePage() {
           Turn your YC-style application into 32+ accelerator applications.
         </h1>
         <p className="meta">
-          Upload your application, pay <strong>€50</strong>, send <strong>32+ accelerators applications</strong>.
+          Save <strong>15 Hours applying</strong> send <strong>32+ accelerators applications</strong>.
         </p>
       </header>
 
@@ -212,12 +212,67 @@ export default function HomePage() {
 
       <section className="mt-16">
         <h2 className="text-xl font-bold">We send applications to 32+ accelerators</h2>
-        <p className="meta">Your package includes program-specific edits and submission checklists for all 32+ accelerators.</p>
+        <p className="meta">Your package includes submission for all 32+ accelerators.</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 mt-4 opacity-80">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="card text-center py-6 text-slate-500">Accelerator {i + 1}</div>
+          {[
+            { name: "Y Combinator", logo: "/logos/yc.png" },
+            { name: "Techstars", logo: "/logos/techstars.png" },
+            { name: "500 Startups", logo: "/logos/500startups.png" },
+            { name: "Plug and Play", logo: "/logos/plugandplay.png" },
+            { name: "MassChallenge", logo: "/logos/masschallenge.png" },
+            { name: "Startupbootcamp", logo: "/logos/startupbootcamp.png" },
+            { name: "Seedcamp", logo: "/logos/seedcamp.png" },
+            { name: "Founders Factory", logo: "/logos/foundersfactory.png" },
+            { name: "Antler", logo: "/logos/antler.png" },
+            { name: "Entrepreneur First", logo: "/logos/ef.png" },
+            { name: "Station F", logo: "/logos/stationf.png" },
+            { name: "Founders Institute", logo: "/logos/foundersinstitute.png" },
+            { name: "StartX", logo: "/logos/startx.png" },
+            { name: "Alchemist", logo: "/logos/alchemist.png" },
+            { name: "Dreamit", logo: "/logos/dreamit.png" },
+            { name: "Launchpad LA", logo: "/logos/launchpadla.png" },
+            { name: "MuckerLab", logo: "/logos/muckerlab.png" },
+            { name: "Amplify.LA", logo: "/logos/amplifyla.png" },
+            { name: "Boost VC", logo: "/logos/boostvc.png" },
+            { name: "IndieBio", logo: "/logos/indiebio.png" },
+            { name: "Y Combinator", logo: "/logos/yc.png" },
+            { name: "Techstars", logo: "/logos/techstars.png" },
+            { name: "500 Startups", logo: "/logos/500startups.png" },
+            { name: "Plug and Play", logo: "/logos/plugandplay.png" },
+            { name: "MassChallenge", logo: "/logos/masschallenge.png" },
+            { name: "Startupbootcamp", logo: "/logos/startupbootcamp.png" },
+            { name: "Seedcamp", logo: "/logos/seedcamp.png" },
+            { name: "Founders Factory", logo: "/logos/foundersfactory.png" },
+            { name: "Antler", logo: "/logos/antler.png" },
+            { name: "Entrepreneur First", logo: "/logos/ef.png" },
+            { name: "Station F", logo: "/logos/stationf.png" },
+            { name: "Founders Institute", logo: "/logos/foundersinstitute.png" },
+            { name: "StartX", logo: "/logos/startx.png" },
+            { name: "Alchemist", logo: "/logos/alchemist.png" },
+            { name: "Dreamit", logo: "/logos/dreamit.png" },
+            { name: "Launchpad LA", logo: "/logos/launchpadla.png" },
+            { name: "MuckerLab", logo: "/logos/muckerlab.png" },
+            { name: "Amplify.LA", logo: "/logos/amplifyla.png" },
+            { name: "Boost VC", logo: "/logos/boostvc.png" },
+            { name: "IndieBio", logo: "/logos/indiebio.png" }
+          ].map((accelerator, i) => (
+            <div key={i} className="card text-center py-4 px-2 text-slate-500 hover:opacity-100 transition-opacity">
+              <div className="w-8 h-8 mx-auto mb-2">
+                <img 
+                  src={accelerator.logo} 
+                  alt={accelerator.name}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    // Fallback to text if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <span className="hidden text-xs font-medium">{accelerator.name}</span>
+              </div>
+              <div className="text-xs font-medium">{accelerator.name}</div>
+            </div>
           ))}
-          {/* Add the full list of 32 here */}
         </div>
       </section>
 
