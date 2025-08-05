@@ -54,13 +54,38 @@ export async function POST(req: Request) {
       : `uploads/${session_id}/${crypto.randomUUID()}.${ext}`;
 
     // Initialize Firebase Storage
-    const serviceAccountKey = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY!);
+    if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      console.error("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set");
+      return NextResponse.json({ error: "Firebase configuration missing" }, { status: 500 });
+    }
+
+    let serviceAccountKey;
+    try {
+      // First try to parse as regular JSON
+      serviceAccountKey = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+    } catch (parseError) {
+      // If that fails, try base64 decoding first
+      try {
+        const decoded = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_KEY, 'base64').toString('utf-8');
+        serviceAccountKey = JSON.parse(decoded);
+      } catch (base64Error) {
+        console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY as JSON or base64:", parseError);
+        console.error("Key value starts with:", process.env.FIREBASE_SERVICE_ACCOUNT_KEY.substring(0, 50));
+        return NextResponse.json({ error: "Invalid Firebase service account configuration" }, { status: 500 });
+      }
+    }
+
     const storage = new Storage({
       credentials: serviceAccountKey,
       projectId: serviceAccountKey.project_id
     });
     
-    const bucketName = process.env.FIREBASE_STORAGE_BUCKET!;
+    if (!process.env.FIREBASE_STORAGE_BUCKET) {
+      console.error("FIREBASE_STORAGE_BUCKET environment variable is not set");
+      return NextResponse.json({ error: "Firebase bucket configuration missing" }, { status: 500 });
+    }
+    
+    const bucketName = process.env.FIREBASE_STORAGE_BUCKET;
     const bucket = storage.bucket(bucketName);
     const file = bucket.file(key);
 

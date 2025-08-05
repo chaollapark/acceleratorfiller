@@ -70,6 +70,8 @@ export default function HomePage() {
       return alert("Please upload a file, paste your application content, or upload videos.");
     }
 
+    let primaryUploadId: string | null = null;
+
     // Handle application file upload if provided
     if (file) {
       if (!ALLOWED.includes(file.type)) return alert("Only PDF or DOC/DOCX are allowed for application files.");
@@ -91,7 +93,7 @@ export default function HomePage() {
       const put = await fetch(url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
       if (!put.ok) return setStatus("Upload failed.");
       
-      setUploadId(key);
+      primaryUploadId = key;
     }
 
     // Handle demo video upload if provided
@@ -153,7 +155,16 @@ export default function HomePage() {
       });
       if (!res.ok) return setStatus("Upload failed.");
       const { key } = await res.json();
-      setUploadId(key);
+      
+      // If no file was uploaded, use the text content as primary upload
+      if (!primaryUploadId) {
+        primaryUploadId = key;
+      }
+    }
+
+    // Set the primary upload ID (file takes precedence over text)
+    if (primaryUploadId) {
+      setUploadId(primaryUploadId);
     }
 
     setUploaded(true);

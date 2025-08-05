@@ -35,7 +35,7 @@ export async function POST(req: Request) {
           price_data: {
             currency: "eur",
             product_data: { name: "Application Prep for 32 Accelerators" },
-            unit_amount: 5000 // €50
+            unit_amount: 9900 // €99
           },
           quantity: 1
         }
