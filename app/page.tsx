@@ -211,8 +211,8 @@ export default function HomePage() {
       </div>
 
       <section className="mt-16">
-        <h2 className="text-xl font-bold">We prepare materials that fit 32 accelerators</h2>
-        <p className="meta">Your package includes program-specific edits and submission checklists for all 32.</p>
+        <h2 className="text-xl font-bold">We send applications to 32+ accelerators</h2>
+        <p className="meta">Your package includes program-specific edits and submission checklists for all 32+ accelerators.</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 mt-4 opacity-80">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="card text-center py-6 text-slate-500">Accelerator {i + 1}</div>
@@ -226,11 +226,11 @@ export default function HomePage() {
         <div className="grid md:grid-cols-3 gap-4 mt-4">
           <div className="card">
             <p className="font-semibold">Do you submit on my behalf?</p>
-            <p className="meta">By default we deliver materials & instructions. Ask if you want submission handling.</p>
+            <p className="meta">We submit on your behalf. We'll send you a link to your application after payment. We'll also let you know when it doesn't work and will resend it</p>
           </div>
           <div className="card">
             <p className="font-semibold">Turnaround</p>
-            <p className="meta">3 business days</p>
+            <p className="meta">3 business days max, usually instantly</p>
           </div>
           <div className="card">
             <p className="font-semibold">Refunds</p>
