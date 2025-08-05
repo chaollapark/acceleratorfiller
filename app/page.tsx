@@ -361,7 +361,7 @@ export default function HomePage() {
       {/* Accelerators Section */}
       <section className="mb-16">
         <div className="section-header">
-          <h2>We send applications to 25+ accelerators</h2>
+          <h2>We send applications to +32 accelerators</h2>
           <p className="meta">Missing your favorite accelerator? <a href="mailto:madan@acceleratorfiller.xyz" className="text-blue-600 hover:text-blue-700 underline">Let us know</a> and we'll add it.</p>
         </div>
         
