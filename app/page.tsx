@@ -134,8 +134,8 @@ export default function HomePage() {
     <main className="container py-16">
       <header className="text-center space-y-4">
         <span className="badge">One application → 32+ accelerators</span>
-        <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
-          Turn your YC-style application into 32+ accelerator applications.
+        <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-slate-900">
+          Turn your YC-application into 32+ applications.
         </h1>
         <p className="meta">
           Save <strong>15 Hours applying</strong> send <strong>32+ accelerators applications</strong>.
@@ -149,11 +149,11 @@ export default function HomePage() {
         </div>
         <div className="card">
           <h3 className="font-semibold mb-2">2) Pay €50</h3>
-          <p className="meta">Secure card payment. VAT invoice available.</p>
+          <p className="meta">Is 15 hours of your time worth €50?</p>
         </div>
         <div className="card">
           <h3 className="font-semibold mb-2">3) Receive your 32-accelerator pack</h3>
-          <p className="meta">Program-specific edits and submission guidance.</p>
+          <p className="meta">Save 15 hours of applying manually - optimize!</p>
         </div>
       </section>
 
@@ -166,7 +166,7 @@ export default function HomePage() {
             {/* File Upload Section */}
             <div>
               <h3 className="font-semibold mb-2">Upload a file</h3>
-              <p className="text-sm text-gray-600 mb-2">PDF or DOC/DOCX, up to {MAX_MB} MB. We delete files after 30 days.</p>
+              <p className="text-sm text-slate-800 font-medium mb-2">PDF or DOC/DOCX, up to {MAX_MB} MB. We delete files after 30 days.</p>
               <input
                 type="file"
                 accept=".pdf,.doc,.docx"
@@ -181,18 +181,18 @@ export default function HomePage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">OR</span>
+                <span className="px-2 bg-white text-slate-700 font-medium">OR</span>
               </div>
             </div>
 
             {/* Paste Content Section */}
             <div>
               <h3 className="font-semibold mb-2">Paste your application content</h3>
-              <p className="text-sm text-gray-600 mb-2">Paste your application content below:</p>
+              <p className="text-sm text-slate-800 font-medium mb-2">Paste your application content below:</p>
               <textarea
                 value={pastedContent}
                 onChange={(e) => setPastedContent(e.target.value)}
-                placeholder="Paste your YC application content here..."
+                placeholder="Paste your YC application content here... Don't forget the founder profile!!!"
                 className="w-full h-64 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -212,7 +212,7 @@ export default function HomePage() {
 
       <section className="mt-16">
         <h2 className="text-xl font-bold">We send applications to 32+ accelerators</h2>
-        <p className="meta">Your package includes submission for all 32+ accelerators.</p>
+        <p className="meta">Missing your favorite accelerator? <a href="mailto:madan@acceleratorfiller.xyz">Let us know</a> and we'll add it.</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 mt-4 opacity-80">
           {[
             { name: "Y Combinator", logo: "/logos/yc.png" },
@@ -281,7 +281,7 @@ export default function HomePage() {
         <div className="grid md:grid-cols-3 gap-4 mt-4">
           <div className="card">
             <p className="font-semibold">Do you submit on my behalf?</p>
-            <p className="meta">We submit on your behalf. We'll send you a link to your application after payment. We'll also let you know when it doesn't work and will resend it</p>
+            <p className="meta">Yes. We'll send you a link to your application after payment. If it doesn't work, we'll resend it.</p>
           </div>
           <div className="card">
             <p className="font-semibold">Turnaround</p>
