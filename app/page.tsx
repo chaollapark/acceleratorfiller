@@ -133,12 +133,12 @@ export default function HomePage() {
   return (
     <main className="container py-16">
       <header className="text-center space-y-4">
-        <span className="badge">One application → 32 accelerators</span>
+        <span className="badge">One application → 32+ accelerators</span>
         <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
-          Turn your YC-style application into 32 accelerator-ready submissions
+          Turn your YC-style application into 32+ accelerator applications.
         </h1>
         <p className="meta">
-          Upload your application, pay <strong>€50</strong>, get a package tailored for <strong>32 accelerators together</strong>.
+          Upload your application, pay <strong>€50</strong>, send <strong>32+ accelerators applications</strong>.
         </p>
       </header>
 
