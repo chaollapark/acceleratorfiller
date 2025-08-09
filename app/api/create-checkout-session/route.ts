@@ -15,17 +15,9 @@ export async function POST(req: Request) {
     
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2024-06-20" as any });
     
-    // Get the site URL with fallback
-    let base = process.env.NEXT_PUBLIC_SITE_URL;
-    if (!base) {
-      // Fallback for development
-      base = "http://localhost:3000";
-    }
-    
-    // Ensure the URL has a scheme
-    if (!base.startsWith('http://') && !base.startsWith('https://')) {
-      base = `https://${base}`;
-    }
+    const host = req.headers.get('host') || 'localhost:3000'
+    const protocol = req.headers.get('x-forwarded-proto') || 'http'
+    const base = `${protocol}://${host}`
     
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
