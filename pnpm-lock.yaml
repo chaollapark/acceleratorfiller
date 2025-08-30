@@ -15,8 +15,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.1.9)(react@18.3.1)
       '@next/mdx':
-        specifier: ^15.5.2
-        version: 15.5.2(@mdx-js/loader@3.1.1)(@mdx-js/react@3.1.1(@types/react@19.1.9)(react@18.3.1))
+        specifier: ^14.2.5
+        version: 14.2.5(@mdx-js/loader@3.1.1)(@mdx-js/react@3.1.1(@types/react@19.1.9)(react@18.3.1))
       '@stripe/stripe-js':
         specifier: ^2.4.0
         version: 2.4.0
@@ -172,8 +172,8 @@ packages:
   '@next/eslint-plugin-next@14.2.31':
     resolution: {integrity: sha512-ouaB+l8Cr/uzGxoGHUvd01OnfFTM8qM81Crw1AG0xoWDRN0DKLXyTWVe0FdAOHVBpGuXB87aufdRmrwzZDArIw==}
 
-  '@next/mdx@15.5.2':
-    resolution: {integrity: sha512-Lz9mdoKRfSNc7T1cSk3gzryhRcc7ErsiAWba1HBoInCX4ZpGUQXmiZLAAyrIgDl7oS/UHxsgKtk2qp/Df4gKBg==}
+  '@next/mdx@14.2.5':
+    resolution: {integrity: sha512-AROhSdXQg0/jt55iqxVSJqp9oaCyXwRe44/I17c77gDshZ6ex7VKBZDH0GljaxZ0Y4mScYUbFJJEh42Xw4X4Dg==}
     peerDependencies:
       '@mdx-js/loader': '>=0.15.0'
       '@mdx-js/react': '>=0.15.0'
@@ -2507,7 +2507,7 @@ snapshots:
     dependencies:
       glob: 10.3.10
 
-  '@next/mdx@15.5.2(@mdx-js/loader@3.1.1)(@mdx-js/react@3.1.1(@types/react@19.1.9)(react@18.3.1))':
+  '@next/mdx@14.2.5(@mdx-js/loader@3.1.1)(@mdx-js/react@3.1.1(@types/react@19.1.9)(react@18.3.1))':
     dependencies:
       source-map: 0.7.6
     optionalDependencies:
