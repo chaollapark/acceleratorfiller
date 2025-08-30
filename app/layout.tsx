@@ -1,11 +1,12 @@
 import "./globals.css";
 import { ReactNode } from "react";
 import type { Metadata } from "next";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Apply to 32 Accelerators with One YC Application",
   description:
-    "Pay €50, upload your YC application, receive materials adapted for 32 accelerators together.",
+    "Pay €99, upload your YC application, receive materials adapted for 32 accelerators together.",
   icons: {
     icon: [
       { url: "/favicons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -30,6 +31,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-100/20 via-transparent to-transparent animate-pulse" />
         <div className="fixed inset-0 bg-[radial-gradient(circle_at_30%_20%,_var(--tw-gradient-stops))] from-purple-100/10 via-transparent to-transparent" />
         
+        {/* Ahrefs Analytics */}
+        <Script
+          src="https://analytics.ahrefs.com/analytics.js"
+          data-key="YI5GEkOmnWdAtFNrWsbTBw"
+          strategy="afterInteractive"
+        />
+        
         {/* Content */}
         <div className="relative z-10 min-h-screen">
           {children}
@@ -37,4 +45,5 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </body>
     </html>
   );
-} 
+}
+ 
