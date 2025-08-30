@@ -5,13 +5,15 @@ import { z } from "zod";
 export const runtime = "nodejs";
 
 const Schema = z.object({
-  uploadId: z.string().optional()
+  uploadId: z.string().optional(),
+  shitTier: z.boolean().optional(),
+  price: z.number().optional()
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { uploadId } = Schema.parse(body);
+    const { uploadId, shitTier, price } = Schema.parse(body);
     
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2024-06-20" as any });
     
@@ -26,8 +28,10 @@ export async function POST(req: Request) {
         {
           price_data: {
             currency: "eur",
-            product_data: { name: "Application Prep for 32 Accelerators" },
-            unit_amount: 9900 // €99
+            product_data: { 
+              name: shitTier ? "Shit Tier Blaster - 100+ Survival-Mode Accelerators" : "Application Prep for 32 Accelerators" 
+            },
+            unit_amount: price ? price * 100 : 9900 // Convert to cents, default €99
           },
           quantity: 1
         }

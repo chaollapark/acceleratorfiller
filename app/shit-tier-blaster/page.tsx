@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import ShitTierBlasterPopup from "./components/ShitTierBlasterPopup";
+import { useState } from "react";
+import Link from "next/link";
 
 const MAX_MB = 15;
 const VIDEO_MAX_MB = 100;
@@ -19,7 +19,7 @@ const VIDEO_ALLOWED = [
   "video/webm"
 ];
 
-export default function HomePage() {
+export default function ShitTierBlasterPage() {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [demoVideo, setDemoVideo] = useState<File | null>(null);
@@ -28,21 +28,18 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [uploaded, setUploaded] = useState(false);
   const [uploadId, setUploadId] = useState<string | null>(null);
-  const [showShitTierPopup, setShowShitTierPopup] = useState(false);
 
-  // Show popup after 10 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowShitTierPopup(true);
-    }, 10000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const startCheckout = async () => {
+  const startShitTierCheckout = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/create-checkout-session", { method: "POST" });
+      const res = await fetch("/api/create-checkout-session", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          shitTier: true,
+          price: 69
+        })
+      });
       const data = await res.json();
       if (data?.url) window.location.href = data.url;
       else alert("Checkout failed.");
@@ -53,7 +50,7 @@ export default function HomePage() {
     }
   };
 
-  const startCheckoutWithUpload = async () => {
+  const startShitTierCheckoutWithUpload = async () => {
     if (!uploadId) return;
     
     setLoading(true);
@@ -61,7 +58,11 @@ export default function HomePage() {
       const res = await fetch("/api/create-checkout-session", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uploadId })
+        body: JSON.stringify({ 
+          uploadId,
+          shitTier: true,
+          price: 69
+        })
       });
       const data = await res.json();
       if (data?.url) window.location.href = data.url;
@@ -95,7 +96,8 @@ export default function HomePage() {
         body: JSON.stringify({ 
           filename: file.name, 
           mime: file.type,
-          prePayment: true 
+          prePayment: true,
+          shitTier: true
         })
       });
       if (!res.ok) return setStatus("Upload failed.");
@@ -119,7 +121,8 @@ export default function HomePage() {
         body: JSON.stringify({ 
           filename: `demo_${demoVideo.name}`, 
           mime: demoVideo.type,
-          prePayment: true 
+          prePayment: true,
+          shitTier: true
         })
       });
       if (!res.ok) return setStatus("Upload failed.");
@@ -141,7 +144,8 @@ export default function HomePage() {
         body: JSON.stringify({ 
           filename: `presentation_${presentationVideo.name}`, 
           mime: presentationVideo.type,
-          prePayment: true 
+          prePayment: true,
+          shitTier: true
         })
       });
       if (!res.ok) return setStatus("Upload failed.");
@@ -161,7 +165,8 @@ export default function HomePage() {
           filename: "application.txt", 
           mime: "text/plain",
           content: pastedContent,
-          prePayment: true 
+          prePayment: true,
+          shitTier: true
         })
       });
       if (!res.ok) return setStatus("Upload failed.");
@@ -179,21 +184,21 @@ export default function HomePage() {
     }
 
     setUploaded(true);
-    setStatus("Upload successful! Now complete payment to get your 32-accelerator pack.");
+    setStatus("Upload successful! Now complete payment to get blasted to 100+ survival-mode accelerators.");
   };
 
   if (uploaded) {
     return (
       <main className="container py-16">
         <div className="card max-w-xl mx-auto text-center success-animation">
-          <div className="text-6xl mb-4">🎉</div>
-          <h1 className="text-3xl font-bold gradient-text mb-4">Upload Successful!</h1>
-          <p className="meta text-lg mb-8">Your application has been uploaded. Now complete payment to get your 32-accelerator pack.</p>
+          <div className="text-6xl mb-4">💥</div>
+          <h1 className="text-3xl font-bold text-red-600 mb-4">Ready to Get Blasted!</h1>
+          <p className="meta text-lg mb-8">Your application has been uploaded. Now complete payment to get shotgunned to 100+ survival-mode accelerators.</p>
           
           <div className="mb-6">
             <button
-              className="btn btn-primary text-lg px-8 py-4"
-              onClick={startCheckoutWithUpload}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg px-8 py-4 rounded-lg transition-colors duration-200"
+              onClick={startShitTierCheckoutWithUpload}
               disabled={loading}
             >
               {loading ? (
@@ -201,14 +206,14 @@ export default function HomePage() {
                   <div className="loading">⏳</div>
                   Processing...
                 </span>
-                              ) : (
-                  "Pay €99 to get your accelerator pack"
-                )}
+              ) : (
+                "Pay €69 to get blasted 💥"
+              )}
             </button>
           </div>
           
           <p className="text-sm text-slate-600">
-            We'll deliver your 32-accelerator pack in ~3 business days after payment.
+            We'll blast your app to 100+ questionable accelerators in ~3 business days after payment.
           </p>
         </div>
       </main>
@@ -217,66 +222,60 @@ export default function HomePage() {
 
   return (
     <main className="container py-16">
+      {/* Top Navigation */}
+      <div className="text-center mb-8">
+        <Link href="/" aria-label="Back to landing" className="inline-block">
+          <div className="text-6xl animate-bounce hover:scale-110 transition-transform">💥</div>
+        </Link>
+      </div>
+      
       {/* Hero Section */}
       <header className="text-center space-y-6 mb-16">
-        <div className="badge text-base px-6 py-3">
-          One application → 32+ accelerators
+        <div className="badge text-base px-6 py-3 bg-red-100 text-red-800 border-red-200">
+          Shit Tier Blaster - €69 Special
         </div>
-        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight gradient-text">
-          Turn your YC-application into 32+ applications.
+        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-red-600">
+          Got Rejected? We Got You.
         </h1>
-        <p className="meta text-xl max-w-3xl mx-auto">
-          Save <strong className="text-blue-600">15 Hours applying</strong> send <strong className="text-blue-600">32+ accelerators applications</strong>.
+        <p className="text-xl max-w-3xl mx-auto text-gray-700">
+          We'll <strong className="text-red-600">shotgun your app to 100+ survival-mode accelerators</strong> around the globe. Sure, most are questionable, but all it takes is <strong className="text-red-600">one yes to keep you alive another 6 months</strong>.
         </p>
-        
-        {/* Product Hunt Badge */}
-        <div className="flex justify-center mt-8">
-          <a href="https://www.producthunt.com/products/one-application-32-startup-accelerators?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-one&#0045;application&#0045;32&#0045;startup&#0045;accelerators" target="_blank" rel="noopener noreferrer">
-            <img 
-              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1001896&theme=light&t=1754400109440" 
-              alt="one&#0032;application&#0045;&#0062;32&#0032;startup&#0032;accelerators - Save&#0032;15&#0032;hours&#0032;applying&#0032;to&#0032;startup&#0032;accelerators | Product Hunt" 
-              style={{ width: '250px', height: '54px' }} 
-              width="250" 
-              height="54" 
-            />
-          </a>
-        </div>
       </header>
 
       {/* Process Steps */}
       <section className="mb-16">
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="card group">
-            <div className="text-3xl mb-4">📄</div>
-            <h3 className="text-xl font-bold mb-3">1) Upload your YC application</h3>
-            <p className="meta">PDF, DOC/DOCX, videos, or paste content. We delete files after 30 days.</p>
+          <div className="card group border-red-200">
+            <div className="text-3xl mb-4">💸</div>
+            <h3 className="text-xl font-bold mb-3 text-red-600">1) Upload your desperate pitch</h3>
+            <p className="meta">PDF, DOC/DOCX, videos, or paste content. We'll make it work somehow.</p>
           </div>
-          <div className="card group">
+          <div className="card group border-red-200">
             <div className="text-3xl mb-4">💳</div>
-            <h3 className="text-xl font-bold mb-3">2) Pay €99</h3>
-            <p className="meta">Is 15 hours of your time worth €99?</p>
+            <h3 className="text-xl font-bold mb-3 text-red-600">2) Pay €69 (30% off!)</h3>
+            <p className="meta">Cheaper than ramen for a month. What do you have to lose?</p>
           </div>
-          <div className="card group">
+          <div className="card group border-red-200">
             <div className="text-3xl mb-4">🚀</div>
-            <h3 className="text-xl font-bold mb-3">3) Receive your 32-accelerator pack</h3>
-            <p className="meta">Save 15 hours of applying manually - optimize!</p>
+            <h3 className="text-xl font-bold mb-3 text-red-600">3) Get blasted everywhere</h3>
+            <p className="meta">100+ accelerators that probably exist. Quantity over quality!</p>
           </div>
         </div>
       </section>
 
       {/* Upload Form */}
       <div className="mb-16">
-        <div className="card max-w-4xl mx-auto">
+        <div className="card max-w-4xl mx-auto border-red-200">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold gradient-text mb-4">Upload your YC application</h2>
-            <p className="meta text-lg">Upload your application and optional videos first, then pay to get your 32-accelerator pack.</p>
+            <h2 className="text-3xl font-bold text-red-600 mb-4">Upload your desperate application</h2>
+            <p className="meta text-lg">Upload your application and optional videos first, then pay €69 to get blasted to 100+ questionable accelerators.</p>
           </div>
 
           <form className="space-y-8" onSubmit={onSubmit}>
             {/* File Upload Section */}
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-slate-800">Upload your application file</h3>
-              <p className="text-slate-600">PDF or DOC/DOCX, up to {MAX_MB} MB. We delete files after 30 days.</p>
+              <p className="text-slate-600">PDF or DOC/DOCX, up to {MAX_MB} MB. We delete files after 30 days (if we remember).</p>
               
               <div className="file-upload">
                 <input
@@ -289,7 +288,7 @@ export default function HomePage() {
                   <div className="text-center">
                     <div className="text-2xl mb-2">📁</div>
                     <div className="font-semibold text-slate-700">
-                      {file ? file.name : "Choose your application file"}
+                      {file ? file.name : "Choose your desperate pitch"}
                     </div>
                     <div className="text-sm text-slate-500 mt-1">
                       {file ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : "PDF, DOC, or DOCX up to 15MB"}
@@ -301,7 +300,7 @@ export default function HomePage() {
 
             {/* Video Upload Section */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-800">Upload videos (optional)</h3>
+              <h3 className="text-xl font-bold text-slate-800">Upload videos (optional but recommended)</h3>
               <p className="text-slate-600">Upload your demo video and/or presentation video. MP4, MOV, AVI, WMV, FLV, or WebM, up to {VIDEO_MAX_MB} MB each.</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -319,7 +318,7 @@ export default function HomePage() {
                         {demoVideo ? demoVideo.name : "Demo Video"}
                       </div>
                       <div className="text-sm text-slate-500 mt-1">
-                        {demoVideo ? `${(demoVideo.size / 1024 / 1024).toFixed(1)} MB` : "Optional"}
+                        {demoVideo ? `${(demoVideo.size / 1024 / 1024).toFixed(1)} MB` : "Show them what you got"}
                       </div>
                     </div>
                   </label>
@@ -339,7 +338,7 @@ export default function HomePage() {
                         {presentationVideo ? presentationVideo.name : "Presentation Video"}
                       </div>
                       <div className="text-sm text-slate-500 mt-1">
-                        {presentationVideo ? `${(presentationVideo.size / 1024 / 1024).toFixed(1)} MB` : "Optional"}
+                        {presentationVideo ? `${(presentationVideo.size / 1024 / 1024).toFixed(1)} MB` : "Pitch like your life depends on it"}
                       </div>
                     </div>
                   </label>
@@ -359,12 +358,12 @@ export default function HomePage() {
 
             {/* Paste Content Section */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-800">Paste your application content</h3>
+              <h3 className="text-xl font-bold text-slate-800">Paste your desperate plea</h3>
               <p className="text-slate-600">Paste your application content below:</p>
               <textarea
                 value={pastedContent}
                 onChange={(e) => setPastedContent(e.target.value)}
-                placeholder="Paste your YC application content here... Don't forget the founder profile!!!"
+                placeholder="Paste your desperate startup pitch here... Include everything - your dreams, your fears, your bank balance..."
                 className="enhanced-textarea h-64"
               />
             </div>
@@ -375,113 +374,33 @@ export default function HomePage() {
                 <input type="checkbox" required className="enhanced-checkbox mt-1" />
                 <span className="text-slate-700">
                   I agree to the{" "}
-                  <a className="text-blue-600 hover:text-blue-700 underline font-medium" href="/legal" target="_blank">Terms & Privacy</a>.
+                  <a className="text-red-600 hover:text-red-700 underline font-medium" href="/legal" target="_blank">Terms & Privacy</a> and understand this is a questionable decision.
                 </span>
               </label>
               
-              <button type="submit" className="btn btn-primary w-full text-lg py-4">
-                Submit application
+              <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-bold w-full text-lg py-4 rounded-lg transition-colors duration-200">
+                💥 Submit for Shit Tier Blasting
               </button>
             </div>
           </form>
 
           {status && (
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-              <p className="text-blue-800 font-medium">{status}</p>
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-red-800 font-medium">{status}</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Accelerators Section */}
+      {/* Warning Section */}
       <section className="mb-16">
-        <div className="section-header">
-          <h2>We send applications to +32 accelerators</h2>
-          <p className="meta">Missing your favorite accelerator? <a href="mailto:madan@acceleratorfiller.xyz" className="text-blue-600 hover:text-blue-700 underline">Let us know</a> and we'll add it.</p>
-        </div>
-        
-        <div className="accelerator-grid">
-          {[
-            { name: "Y Combinator", logo: "/logos/ycombinator.com.png" },
-            { name: "Techstars", logo: "/logos/techstars.com.png" },
-            { name: "500 Startups", logo: "/logos/500.co.png" },
-            { name: "Seedcamp", logo: "/logos/seedcamp.com.png" },
-            { name: "Antler", logo: "/logos/antler.co.png" },
-            { name: "Entrepreneur First", logo: "/logos/joinef.com.png" },
-            { name: "Andreessen Horowitz", logo: "/logos/a16z.com.png" },
-            { name: "Accel", logo: "/logos/accel.com.png" },
-            { name: "Greylock", logo: "/logos/greylock.com.png" },
-            { name: "Sequoia", logo: "/logos/sequoia.com.png" },
-            { name: "Boost VC", logo: "/logos/boost.vc.png" },
-            { name: "Betaworks", logo: "/logos/betaworks.com.png" },
-            { name: "AngelPad", logo: "/logos/angelpad.org.png" },
-            { name: "Pear VC", logo: "/logos/pear.vc.png" },
-            { name: "NEO", logo: "/logos/neo.com.png" },
-            { name: "Launch", logo: "/logos/launch.co.png" },
-            { name: "Pioneer", logo: "/logos/pioneer.app.png" },
-            { name: "South Park Commons", logo: "/logos/southparkcommons.com.png" },
-            { name: "Soma Capital", logo: "/logos/somacap.com.png" },
-            { name: "SkyDeck", logo: "/logos/skydeck.berkeley.edu.png" },
-            { name: "Startup Wise Guys", logo: "/logos/startupwiseguys.com.png" },
-            { name: "Google for Startups", logo: "/logos/startup.google.com.png" },
-            { name: "HF0", logo: "/logos/hf0.com.png" },
-            { name: "Conviction", logo: "/logos/conviction.com.png" },
-            { name: "BTV", logo: "/logos/btv.vc.png" },
-            { name: "APX", logo: "/logos/apx.vc.png" },
-            { name: "Afore", logo: "/logos/afore.vc.png" },
-            { name: "OpenAI", logo: "/logos/openai.com.png" }
-          ].map((accelerator, i) => (
-            <div key={i} className="accelerator-item">
-              <div className="w-10 h-10 mx-auto mb-3">
-                <img 
-                  src={accelerator.logo} 
-                  alt={accelerator.name}
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <span className="hidden text-xs font-medium">{accelerator.name}</span>
-              </div>
-              <div className="text-xs font-medium">{accelerator.name}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQs Section */}
-      <section className="mb-16">
-        <div className="section-header">
-          <h2>Frequently Asked Questions</h2>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="card">
-            <div className="text-2xl mb-3">🤝</div>
-            <p className="font-bold text-lg mb-2">Do you submit on my behalf?</p>
-            <p className="meta">Yes. We'll send you a link to your application after payment. If it doesn't work, we'll resend it.</p>
-          </div>
-          <div className="card">
-            <div className="text-2xl mb-3">⚡</div>
-            <p className="font-bold text-lg mb-2">Turnaround</p>
-            <p className="meta">3 business days max, usually instantly</p>
-          </div>
-          <div className="card">
-            <div className="text-2xl mb-3">💰</div>
-            <p className="font-bold text-lg mb-2">Refunds</p>
-            <p className="meta">Full refund before we start; proportional refund if we miss the timeline.</p>
-          </div>
-          {/* Shit Tier Blaster FAQ */}
-          <div className="card">
-            <div className="text-2xl mb-3">💥</div>
-            <p className="font-bold text-lg mb-2">Shit Tier Blaster?</p>
-            <p className="meta mb-4">Too broke for YC? We'll shotgun your app to 100+ survival‑mode accelerators for €69.</p>
-            <div className="flex justify-center">
-              <a href="/shit-tier-blaster" className="btn btn-secondary">
-                🔥 Shit Tier Button
-              </a>
-            </div>
+        <div className="card max-w-4xl mx-auto bg-yellow-50 border-yellow-200">
+          <div className="text-center">
+            <div className="text-3xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-yellow-800 mb-4">Fair Warning</h2>
+            <p className="text-yellow-700 leading-relaxed">
+              We're sending your application to 100+ shit tier accelerators (we'll also send it to normal accelerators), may or may not be legitimate, and may or may not respond. Some might be run out of someone's garage. Others might be pyramid schemes. But hey, you're desperate, right? At least one of them might say yes and keep you alive for another 6 months.
+            </p>
           </div>
         </div>
       </section>
@@ -489,20 +408,14 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="text-center text-sm text-slate-600 space-y-2">
         <p>
-          <strong>Disclaimer:</strong> Not affiliated with Y Combinator (YC) or any accelerator. No admissions are guaranteed.
+          <strong>Disclaimer:</strong> Not affiliated with any legitimate accelerator. No admissions are guaranteed. Most accelerators in this list are questionable at best.
         </p>
         <p className="space-x-4">
-          <a className="text-blue-600 hover:text-blue-700 underline" href="/blog">Blog</a>
+          <a className="text-red-600 hover:text-red-700 underline" href="/">Back to Normal Service</a>
           <span>•</span>
-          <a className="text-blue-600 hover:text-blue-700 underline" href="/legal">Terms, Privacy & GDPR</a>
+          <a className="text-red-600 hover:text-red-700 underline" href="/legal">Terms, Privacy & GDPR</a>
         </p>
       </footer>
-
-      {/* Shit Tier Blaster Popup */}
-      <ShitTierBlasterPopup 
-        isOpen={showShitTierPopup} 
-        onClose={() => setShowShitTierPopup(false)} 
-      />
     </main>
   );
-} 
+}
