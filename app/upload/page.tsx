@@ -106,7 +106,7 @@ export default function UploadPage() {
               onClick={startCheckout}
               disabled={loading}
             >
-              {loading ? "Loading…" : "Pay €50 to get your accelerator pack"}
+              {loading ? "Loading…" : "Pay €99 to get your accelerator pack"}
             </button>
           </div>
           
