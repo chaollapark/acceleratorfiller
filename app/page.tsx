@@ -469,7 +469,9 @@ export default function HomePage() {
         <p>
           <strong>Disclaimer:</strong> Not affiliated with Y Combinator (YC) or any accelerator. No admissions are guaranteed.
         </p>
-        <p>
+        <p className="space-x-4">
+          <a className="text-blue-600 hover:text-blue-700 underline" href="/blog">Blog</a>
+          <span>•</span>
           <a className="text-blue-600 hover:text-blue-700 underline" href="/legal">Terms, Privacy & GDPR</a>
         </p>
       </footer>
