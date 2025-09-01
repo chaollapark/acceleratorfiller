@@ -2,6 +2,7 @@ import "./globals.css";
 import { ReactNode } from "react";
 import type { Metadata } from "next";
 import Script from "next/script";
+import { PHProvider } from "./providers/posthog";
 
 export const metadata: Metadata = {
   title: "Apply to 32 Accelerators with One YC Application",
@@ -40,7 +41,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         
         {/* Content */}
         <div className="relative z-10 min-h-screen">
-          {children}
+          <PHProvider>
+            {children}
+          </PHProvider>
         </div>
       </body>
     </html>

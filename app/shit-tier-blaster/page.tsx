@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAnalytics } from "../hooks/usePostHog";
 
 const MAX_MB = 15;
 const VIDEO_MAX_MB = 100;
@@ -28,8 +29,15 @@ export default function ShitTierBlasterPage() {
   const [status, setStatus] = useState<string>("");
   const [uploaded, setUploaded] = useState(false);
   const [uploadId, setUploadId] = useState<string | null>(null);
+  
+  const { trackButtonClick, trackFormSubmit, trackFileUpload, trackCheckoutStart, trackPageView } = useAnalytics();
+
+  useEffect(() => {
+    trackPageView('shit_tier_blaster_page');
+  }, [trackPageView]);
 
   const startShitTierCheckout = async () => {
+    trackCheckoutStart('shit_tier', 69, false);
     setLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", { 
@@ -53,6 +61,7 @@ export default function ShitTierBlasterPage() {
   const startShitTierCheckoutWithUpload = async () => {
     if (!uploadId) return;
     
+    trackCheckoutStart('shit_tier', 69, true);
     setLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", { 
@@ -77,6 +86,13 @@ export default function ShitTierBlasterPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    trackFormSubmit('shit_tier_application_upload', {
+      has_file: !!file,
+      has_demo_video: !!demoVideo,
+      has_presentation_video: !!presentationVideo,
+      has_pasted_content: !!pastedContent.trim()
+    });
+    
     // Check if user provided either file or content
     if (!file && !pastedContent.trim() && !demoVideo && !presentationVideo) {
       return alert("Please upload a file, paste your application content, or upload videos.");
@@ -89,6 +105,7 @@ export default function ShitTierBlasterPage() {
       if (!ALLOWED.includes(file.type)) return alert("Only PDF or DOC/DOCX are allowed for application files.");
       if (file.size > MAX_MB * 1024 * 1024) return alert(`Max size is ${MAX_MB} MB for application files.`);
 
+      trackFileUpload(file.type, file.size, file.name);
       setStatus("Uploading application file…");
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -114,6 +131,7 @@ export default function ShitTierBlasterPage() {
       if (!VIDEO_ALLOWED.includes(demoVideo.type)) return alert("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
       if (demoVideo.size > VIDEO_MAX_MB * 1024 * 1024) return alert(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
 
+      trackFileUpload(`demo_${demoVideo.type}`, demoVideo.size, demoVideo.name);
       setStatus("Uploading demo video…");
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -137,6 +155,7 @@ export default function ShitTierBlasterPage() {
       if (!VIDEO_ALLOWED.includes(presentationVideo.type)) return alert("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
       if (presentationVideo.size > VIDEO_MAX_MB * 1024 * 1024) return alert(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
 
+      trackFileUpload(`presentation_${presentationVideo.type}`, presentationVideo.size, presentationVideo.name);
       setStatus("Uploading presentation video…");
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -198,7 +217,10 @@ export default function ShitTierBlasterPage() {
           <div className="mb-6">
             <button
               className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg px-8 py-4 rounded-lg transition-colors duration-200"
-              onClick={startShitTierCheckoutWithUpload}
+              onClick={() => {
+                trackButtonClick('shit_tier_pay_button', { price: 69, tier: 'shit_tier', has_upload: true });
+                startShitTierCheckoutWithUpload();
+              }}
               disabled={loading}
             >
               {loading ? (
@@ -224,7 +246,12 @@ export default function ShitTierBlasterPage() {
     <main className="container py-16">
       {/* Top Navigation */}
       <div className="text-center mb-8">
-        <Link href="/" aria-label="Back to landing" className="inline-block">
+        <Link 
+          href="/" 
+          aria-label="Back to landing" 
+          className="inline-block"
+          onClick={() => trackButtonClick('back_to_landing', { source: 'shit_tier_blaster' })}
+        >
           <div className="text-6xl animate-bounce hover:scale-110 transition-transform">💥</div>
         </Link>
       </div>
@@ -411,9 +438,21 @@ export default function ShitTierBlasterPage() {
           <strong>Disclaimer:</strong> Not affiliated with any legitimate accelerator. No admissions are guaranteed. Most accelerators in this list are questionable at best.
         </p>
         <p className="space-x-4">
-          <a className="text-red-600 hover:text-red-700 underline" href="/">Back to Normal Service</a>
+          <a 
+            className="text-red-600 hover:text-red-700 underline" 
+            href="/"
+            onClick={() => trackButtonClick('back_to_normal_service', { source: 'shit_tier_footer' })}
+          >
+            Back to Normal Service
+          </a>
           <span>•</span>
-          <a className="text-red-600 hover:text-red-700 underline" href="/legal">Terms, Privacy & GDPR</a>
+          <a 
+            className="text-red-600 hover:text-red-700 underline" 
+            href="/legal"
+            onClick={() => trackButtonClick('legal_link', { source: 'shit_tier_footer' })}
+          >
+            Terms, Privacy & GDPR
+          </a>
         </p>
       </footer>
     </main>
