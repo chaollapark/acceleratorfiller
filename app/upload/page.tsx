@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAnalytics } from "../hooks/usePostHog";
 
 const MAX_MB = 15;
 const ALLOWED = [
@@ -18,21 +19,31 @@ export default function UploadPage() {
   const [uploaded, setUploaded] = useState(false);
   const [uploadId, setUploadId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  const { trackPageView, trackButtonClick, trackFormSubmit, trackFileUpload, trackCheckoutStart } = useAnalytics();
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const s = p.get("session_id");
     setSessionId(s);
-  }, []);
+    
+    trackPageView('upload_page', { has_session_id: !!s });
+  }, [trackPageView]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    trackFormSubmit('upload_page_form', {
+      upload_method: uploadMethod,
+      has_session_id: !!sessionId
+    });
     
     if (uploadMethod === "file") {
       if (!file) return;
       if (!ALLOWED.includes(file.type)) return alert("Only PDF or DOC/DOCX are allowed.");
       if (file.size > MAX_MB * 1024 * 1024) return alert(`Max size is ${MAX_MB} MB.`);
 
+      trackFileUpload(file.type, file.size, file.name);
       setStatus("Uploading file…");
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -76,6 +87,7 @@ export default function UploadPage() {
   const startCheckout = async () => {
     if (!uploadId) return;
     
+    trackCheckoutStart('premium', 99, true);
     setLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", { 
@@ -103,7 +115,10 @@ export default function UploadPage() {
           <div className="mt-6">
             <button
               className="btn btn-primary text-lg px-6 py-3"
-              onClick={startCheckout}
+              onClick={() => {
+                trackButtonClick('upload_page_pay_button', { price: 99, tier: 'premium' });
+                startCheckout();
+              }}
               disabled={loading}
             >
               {loading ? "Loading…" : "Pay €99 to get your accelerator pack"}
@@ -176,7 +191,14 @@ export default function UploadPage() {
           
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" required /> I agree to the{" "}
-            <a className="underline" href="/legal" target="_blank">Terms & Privacy</a>.
+            <a 
+              className="underline" 
+              href="/legal" 
+              target="_blank"
+              onClick={() => trackButtonClick('legal_link', { source: 'upload_page' })}
+            >
+              Terms & Privacy
+            </a>.
           </label>
           <button className="btn btn-primary">
             Upload {uploadMethod === "file" ? "file" : "content"}

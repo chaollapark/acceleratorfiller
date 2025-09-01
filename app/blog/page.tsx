@@ -1,6 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
+import { useAnalytics } from "../hooks/usePostHog";
 
 export default function BlogIndex() {
+  const { trackPageView, trackButtonClick } = useAnalytics();
+
+  useEffect(() => {
+    trackPageView('blog_page');
+  }, [trackPageView]);
+
   return (
     <main className="mx-auto max-w-4xl p-6">
       <div className="space-y-8">
@@ -14,7 +24,11 @@ export default function BlogIndex() {
         <div className="grid gap-6">
           <article className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <h2 className="text-xl font-semibold mb-2">
-              <Link href="/blog/test-post" className="text-blue-600 hover:text-blue-800">
+              <Link 
+                href="/blog/test-post" 
+                className="text-blue-600 hover:text-blue-800"
+                onClick={() => trackButtonClick('blog_post_link', { post: 'test-post' })}
+              >
                 Testing MDX Blog Functionality
               </Link>
             </h2>

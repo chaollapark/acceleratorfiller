@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAnalytics } from "../hooks/usePostHog";
 
 interface ShitTierBlasterPopupProps {
   isOpen: boolean;
@@ -10,11 +11,24 @@ interface ShitTierBlasterPopupProps {
 
 export default function ShitTierBlasterPopup({ isOpen, onClose }: ShitTierBlasterPopupProps) {
   const router = useRouter();
+  const { trackButtonClick } = useAnalytics();
+
+  useEffect(() => {
+    if (isOpen) {
+      trackButtonClick('shit_tier_popup_shown');
+    }
+  }, [isOpen, trackButtonClick]);
 
   if (!isOpen) return null;
 
   const handleBlastMeNow = () => {
+    trackButtonClick('shit_tier_popup_blast_me_now');
     router.push("/shit-tier-blaster");
+    onClose();
+  };
+
+  const handleClose = () => {
+    trackButtonClick('shit_tier_popup_close');
     onClose();
   };
 
@@ -23,14 +37,14 @@ export default function ShitTierBlasterPopup({ isOpen, onClose }: ShitTierBlaste
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Popup */}
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-md mx-4 p-8 text-center animate-bounce-in">
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
         >
           ×
@@ -55,7 +69,7 @@ export default function ShitTierBlasterPopup({ isOpen, onClose }: ShitTierBlaste
             </button>
             
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg transition-colors duration-200"
             >
               Nah, Bootstrap me to the bed
