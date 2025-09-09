@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ShitTierBlasterPopup from "./components/ShitTierBlasterPopup";
+import { useAnalytics } from "./hooks/usePostHog";
 
 const MAX_MB = 15;
 const VIDEO_MAX_MB = 100;
@@ -27,6 +29,24 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [uploaded, setUploaded] = useState(false);
   const [uploadId, setUploadId] = useState<string | null>(null);
+  const [showShitTierPopup, setShowShitTierPopup] = useState(false);
+
+  const { trackPageView } = useAnalytics();
+
+  // Show popup after 10 seconds (only if not previously dismissed)
+  useEffect(() => {
+    trackPageView('home_page');
+
+    // Check if user has already dismissed the popup
+    const hasDismissed = localStorage.getItem('shitTierPopupDismissed');
+    if (hasDismissed) return;
+
+    const timer = setTimeout(() => {
+      setShowShitTierPopup(true);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [trackPageView]);
 
   const startCheckout = async () => {
     setLoading(true);
@@ -473,6 +493,15 @@ export default function HomePage() {
           <a className="text-blue-600 hover:text-blue-700 underline" href="/legal">Terms, Privacy & GDPR</a>
         </p>
       </footer>
+
+      {/* Shit Tier Blaster Popup */}
+      <ShitTierBlasterPopup
+        isOpen={showShitTierPopup}
+        onClose={() => {
+          setShowShitTierPopup(false);
+          localStorage.setItem('shitTierPopupDismissed', 'true');
+        }}
+      />
     </main>
   );
 } 
