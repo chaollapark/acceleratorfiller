@@ -1,16 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAnalytics } from "../hooks/usePostHog";
 
 export default function SuccessPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [uploadId, setUploadId] = useState<string | null>(null);
+  const { trackPageView, trackButtonClick } = useAnalytics();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setSessionId(params.get("session_id"));
     setUploadId(params.get("upload_id"));
-  }, []);
+    
+    trackPageView('success_page', {
+      has_session_id: !!params.get("session_id"),
+      has_upload_id: !!params.get("upload_id")
+    });
+  }, [trackPageView]);
 
   return (
     <main className="container py-16">
@@ -29,6 +36,7 @@ export default function SuccessPage() {
             <a
               className="btn btn-primary mt-6"
               href={`/upload?session_id=${encodeURIComponent(sessionId || "")}`}
+              onClick={() => trackButtonClick('go_to_upload_button', { session_id: sessionId })}
             >
               Go to Upload
             </a>

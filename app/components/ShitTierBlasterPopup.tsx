@@ -46,6 +46,7 @@ export default function ShitTierBlasterPopup({ isOpen, onClose }: ShitTierBlaste
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
+          aria-label="Close"
         >
           ×
         </button>
