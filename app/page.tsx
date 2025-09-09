@@ -30,13 +30,20 @@ export default function HomePage() {
   const [uploaded, setUploaded] = useState(false);
   const [uploadId, setUploadId] = useState<string | null>(null);
   const [showShitTierPopup, setShowShitTierPopup] = useState(false);
-  
-  const { trackButtonClick, trackFormSubmit, trackFileUpload, trackCheckoutStart, trackPageView } = useAnalytics();
 
-  // Show popup after 10 seconds
+  const { trackPageView } = useAnalytics();
+
+  // Show popup after 10 seconds (only if not previously dismissed)
   useEffect(() => {
     trackPageView('home_page');
-    
+
+    try {
+      const hasDismissed = localStorage.getItem('shitTierPopupDismissed');
+      if (hasDismissed) return;
+    } catch {
+      // SSR/paranoid try-catch: localStorage might not exist in bizarre universes
+    }
+
     const timer = setTimeout(() => {
       setShowShitTierPopup(true);
     }, 10000);
@@ -45,7 +52,6 @@ export default function HomePage() {
   }, [trackPageView]);
 
   const startCheckout = async () => {
-    trackCheckoutStart('premium', 99, false);
     setLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", { method: "POST" });
@@ -62,7 +68,6 @@ export default function HomePage() {
   const startCheckoutWithUpload = async () => {
     if (!uploadId) return;
     
-    trackCheckoutStart('premium', 99, true);
     setLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", { 
@@ -83,13 +88,6 @@ export default function HomePage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    trackFormSubmit('application_upload', {
-      has_file: !!file,
-      has_demo_video: !!demoVideo,
-      has_presentation_video: !!presentationVideo,
-      has_pasted_content: !!pastedContent.trim()
-    });
-    
     // Check if user provided either file or content
     if (!file && !pastedContent.trim() && !demoVideo && !presentationVideo) {
       return alert("Please upload a file, paste your application content, or upload videos.");
@@ -102,7 +100,6 @@ export default function HomePage() {
       if (!ALLOWED.includes(file.type)) return alert("Only PDF or DOC/DOCX are allowed for application files.");
       if (file.size > MAX_MB * 1024 * 1024) return alert(`Max size is ${MAX_MB} MB for application files.`);
 
-      trackFileUpload(file.type, file.size, file.name);
       setStatus("Uploading application file…");
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -127,7 +124,6 @@ export default function HomePage() {
       if (!VIDEO_ALLOWED.includes(demoVideo.type)) return alert("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
       if (demoVideo.size > VIDEO_MAX_MB * 1024 * 1024) return alert(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
 
-      trackFileUpload(`demo_${demoVideo.type}`, demoVideo.size, demoVideo.name);
       setStatus("Uploading demo video…");
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -150,7 +146,6 @@ export default function HomePage() {
       if (!VIDEO_ALLOWED.includes(presentationVideo.type)) return alert("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
       if (presentationVideo.size > VIDEO_MAX_MB * 1024 * 1024) return alert(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
 
-      trackFileUpload(`presentation_${presentationVideo.type}`, presentationVideo.size, presentationVideo.name);
       setStatus("Uploading presentation video…");
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -210,10 +205,7 @@ export default function HomePage() {
           <div className="mb-6">
             <button
               className="btn btn-primary text-lg px-8 py-4"
-              onClick={() => {
-                trackButtonClick('pay_with_upload_button', { price: 99, tier: 'premium' });
-                startCheckoutWithUpload();
-              }}
+              onClick={startCheckoutWithUpload}
               disabled={loading}
             >
               {loading ? (
@@ -251,12 +243,7 @@ export default function HomePage() {
         
         {/* Product Hunt Badge */}
         <div className="flex justify-center mt-8">
-          <a 
-            href="https://www.producthunt.com/products/one-application-32-startup-accelerators?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-one&#0045;application&#0045;32&#0045;startup&#0045;accelerators" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            onClick={() => trackButtonClick('product_hunt_badge', { source: 'home_hero' })}
-          >
+          <a href="https://www.producthunt.com/products/one-application-32-startup-accelerators?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-one&#0045;application&#0045;32&#0045;startup&#0045;accelerators" target="_blank" rel="noopener noreferrer">
             <img 
               src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1001896&theme=light&t=1754400109440" 
               alt="one&#0032;application&#0045;&#0062;32&#0032;startup&#0032;accelerators - Save&#0032;15&#0032;hours&#0032;applying&#0032;to&#0032;startup&#0032;accelerators | Product Hunt" 
@@ -497,21 +484,6 @@ export default function HomePage() {
             <p className="font-bold text-lg mb-2">Refunds</p>
             <p className="meta">Full refund before we start; proportional refund if we miss the timeline.</p>
           </div>
-          {/* Shit Tier Blaster FAQ */}
-          <div className="card">
-            <div className="text-2xl mb-3">💥</div>
-            <p className="font-bold text-lg mb-2">Shit Tier Blaster?</p>
-            <p className="meta mb-4">Too broke for YC? We'll shotgun your app to 100+ survival‑mode accelerators for €69.</p>
-            <div className="flex justify-center">
-              <a 
-                href="/shit-tier-blaster" 
-                className="btn btn-secondary"
-                onClick={() => trackButtonClick('shit_tier_blaster_link', { source: 'faq_section' })}
-              >
-                🔥 Shit Tier Button
-              </a>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -520,29 +492,20 @@ export default function HomePage() {
         <p>
           <strong>Disclaimer:</strong> Not affiliated with Y Combinator (YC) or any accelerator. No admissions are guaranteed.
         </p>
-        <p className="space-x-4">
-          <a 
-            className="text-blue-600 hover:text-blue-700 underline" 
-            href="/blog"
-            onClick={() => trackButtonClick('blog_link', { source: 'footer' })}
-          >
-            Blog
-          </a>
-          <span>•</span>
-          <a 
-            className="text-blue-600 hover:text-blue-700 underline" 
-            href="/legal"
-            onClick={() => trackButtonClick('legal_link', { source: 'footer' })}
-          >
-            Terms, Privacy & GDPR
-          </a>
+        <p>
+          <a className="text-blue-600 hover:text-blue-700 underline" href="/legal">Terms, Privacy & GDPR</a>
         </p>
       </footer>
 
       {/* Shit Tier Blaster Popup */}
-      <ShitTierBlasterPopup 
-        isOpen={showShitTierPopup} 
-        onClose={() => setShowShitTierPopup(false)} 
+      <ShitTierBlasterPopup
+        isOpen={showShitTierPopup}
+        onClose={() => {
+          setShowShitTierPopup(false);
+          try {
+            localStorage.setItem('shitTierPopupDismissed', 'true');
+          } catch {}
+        }}
       />
     </main>
   );
