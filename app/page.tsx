@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FreeTrialAnimation from "./components/FreeTrialAnimation";
 
 const MAX_MB = 15;
@@ -32,6 +32,134 @@ export default function HomePage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTrialUsedPopup, setShowTrialUsedPopup] = useState(false);
 
+  // Listen for payment trigger from FreeTrialAnimation
+  useEffect(() => {
+    const handlePaymentTrigger = async () => {
+      if (uploadId) {
+        startCheckoutWithUpload();
+      } else {
+        setLoading(true);
+        try {
+          await uploadContentThenCheckout();
+        } catch (error) {
+          alert(error instanceof Error ? error.message : "Upload failed");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    window.addEventListener('triggerPayment', handlePaymentTrigger);
+    return () => window.removeEventListener('triggerPayment', handlePaymentTrigger);
+  }, [uploadId, file, demoVideo, presentationVideo, pastedContent]);
+
+  const uploadContentThenCheckout = async () => {
+    let primaryUploadId: string | null = null;
+
+    // Handle application file upload if provided
+    if (file) {
+      if (!ALLOWED.includes(file.type)) throw new Error("Only PDF or DOC/DOCX are allowed for application files.");
+      if (file.size > MAX_MB * 1024 * 1024) throw new Error(`Max size is ${MAX_MB} MB for application files.`);
+
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: file.name, 
+          mime: file.type,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) throw new Error("Upload failed.");
+      const { url, key } = await res.json();
+
+      const put = await fetch(url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+      if (!put.ok) throw new Error("Upload failed.");
+      
+      primaryUploadId = key;
+    }
+
+    // Handle demo video upload if provided
+    if (demoVideo) {
+      if (!VIDEO_ALLOWED.includes(demoVideo.type)) throw new Error("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
+      if (demoVideo.size > VIDEO_MAX_MB * 1024 * 1024) throw new Error(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
+
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: `demo_${demoVideo.name}`, 
+          mime: demoVideo.type,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) throw new Error("Upload failed.");
+      const { url, key } = await res.json();
+
+      const put = await fetch(url, { method: "PUT", body: demoVideo, headers: { "Content-Type": demoVideo.type } });
+      if (!put.ok) throw new Error("Upload failed.");
+    }
+
+    // Handle presentation video upload if provided
+    if (presentationVideo) {
+      if (!VIDEO_ALLOWED.includes(presentationVideo.type)) throw new Error("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
+      if (presentationVideo.size > VIDEO_MAX_MB * 1024 * 1024) throw new Error(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
+
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: `presentation_${presentationVideo.name}`, 
+          mime: presentationVideo.type,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) throw new Error("Upload failed.");
+      const { url, key } = await res.json();
+
+      const put = await fetch(url, { method: "PUT", body: presentationVideo, headers: { "Content-Type": presentationVideo.type } });
+      if (!put.ok) throw new Error("Upload failed.");
+    }
+
+    // Handle pasted content if provided
+    if (pastedContent.trim()) {
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: "application.txt", 
+          mime: "text/plain",
+          content: pastedContent,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) throw new Error("Upload failed.");
+      const { key } = await res.json();
+      
+      // If no file was uploaded, use the text content as primary upload
+      if (!primaryUploadId) {
+        primaryUploadId = key;
+      }
+    }
+
+    // Set the primary upload ID and start checkout
+    if (primaryUploadId) {
+      setUploadId(primaryUploadId);
+      
+      // Start checkout with upload ID
+      const res = await fetch("/api/create-checkout-session", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uploadId: primaryUploadId })
+      });
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+      else throw new Error("Checkout failed.");
+    } else {
+      throw new Error("No content to upload.");
+    }
+  };
+
   const handleOpenDemo = () => {
     // Prevent demo if already used
     try {
@@ -60,7 +188,11 @@ export default function HomePage() {
   const startCheckout = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/create-checkout-session", { method: "POST" });
+      const res = await fetch("/api/create-checkout-session", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
       const data = await res.json();
       if (data?.url) window.location.href = data.url;
       else alert("Checkout failed.");
@@ -398,7 +530,7 @@ export default function HomePage() {
               </label>
               
               <button type="submit" className="btn btn-primary w-full text-lg py-4">
-                Submit application
+                Submit application - it's only €99
               </button>
 
               <div className="text-center mt-4">
@@ -420,7 +552,13 @@ export default function HomePage() {
       {showFreeTrial && (
         <div className="fixed inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center">
           <div className="relative">
-            <button onClick={() => setShowFreeTrial(false)} className="absolute top-0 right-0 m-4 text-2xl">&times;</button>
+            <button 
+              onClick={() => setShowFreeTrial(false)} 
+              className="absolute top-0 right-0 m-4 text-2xl"
+              data-close-trial
+            >
+              &times;
+            </button>
             <FreeTrialAnimation />
           </div>
         </div>
@@ -441,7 +579,20 @@ export default function HomePage() {
               <h3 className="text-2xl font-bold">You already used your trial</h3>
               <p className="text-slate-600">Unlock full access and send your application to 32+ accelerators.</p>
               <button
-                onClick={startCheckout}
+                onClick={async () => {
+                  if (uploadId) {
+                    // Already uploaded, just go to checkout
+                    startCheckoutWithUpload();
+                  } else {
+                    // Need to upload first, then checkout
+                    setLoading(true);
+                    try {
+                      await uploadContentThenCheckout();
+                    } finally {
+                      setLoading(false);
+                    }
+                  }
+                }}
                 className="btn btn-primary w-full text-lg py-3"
                 disabled={loading}
               >

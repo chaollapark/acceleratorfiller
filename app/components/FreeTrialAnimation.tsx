@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 
 const accelerators = [
-  { name: "Conviction", displayName: "Convictio", logo: "/logos/conviction.com.png" },
+  { name: "Conviction", displayName: "Conviction", logo: "/logos/conviction.com.png" },
   { name: "Andreessen Horowitz", displayName: "a16z", logo: "/logos/a16z.com.png" },
   { name: "Accel", displayName: "Accel", logo: "/logos/accel.com.png" },
   { name: "Sequoia", displayName: "Sequoia", logo: "/logos/sequoia.com.png" },
@@ -166,10 +166,35 @@ const FreeTrialAnimation = () => {
       </div>
       
       {isComplete && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-          <p className="text-center text-sm text-gray-700">
-            <strong>Ready for the real thing?</strong> Get instant access to 32+ accelerators with our full service.
-          </p>
+        <div className="mt-6 space-y-4">
+          <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+            <p className="text-center text-sm text-gray-700">
+              <strong>You just saved 1 hour!</strong> This is what happens with all 32+ accelerators in the full version.
+            </p>
+          </div>
+          <div className="text-center space-y-3">
+            <h3 className="text-lg font-bold text-gray-900">Ready to reach 32+ accelerators?</h3>
+            <p className="text-sm text-gray-600">Save 15+ hours of manual applications.</p>
+            <button 
+              onClick={() => {
+                // Close the trial modal and trigger payment flow
+                const closeButton = document.querySelector('[data-close-trial]') as HTMLButtonElement;
+                closeButton?.click();
+                
+                // Small delay to ensure modal closes, then trigger payment
+                setTimeout(() => {
+                  const event = new CustomEvent('triggerPayment');
+                  window.dispatchEvent(event);
+                }, 100);
+              }}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              Get Full Access - €99
+            </button>
+            <p className="text-xs text-gray-500">
+              ✓ 32+ accelerator applications ✓ Improve your fundraising odds ✓ Full refund if unsatisfied
+            </p>
+          </div>
         </div>
       )}
     </div>
