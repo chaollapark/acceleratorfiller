@@ -1,4 +1,15 @@
+"use client";
+
+import { useEffect } from "react";
+import { useAnalytics } from "../hooks/usePostHog";
+
 export default function LegalPage() {
+  const { trackPageView } = useAnalytics();
+
+  useEffect(() => {
+    trackPageView('legal_page');
+  }, [trackPageView]);
+
   return (
     <main className="container py-16 prose max-w-3xl">
       <h1>Terms & Privacy (GDPR)</h1>

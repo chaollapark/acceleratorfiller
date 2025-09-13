@@ -6,8 +6,9 @@
 /.pnp
 .pnp.js
 
-# Testing
-/coverage
+# Testing (ignore any __tests__ dirs)
+coverage/
+__tests__/
 
 # Next.js build output
 /.next/

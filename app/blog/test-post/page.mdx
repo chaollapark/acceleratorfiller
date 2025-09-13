@@ -1,0 +1,50 @@
+# Testing MDX Blog Functionality
+
+Welcome to our first blog post! This is a test to verify that MDX is working correctly with Next.js App Router.
+
+## What is this post about?
+
+This post isn’t just a test—it’s also a founder rant about accelerators. After years of pivoting and copy-pasting the same YC application into dozens of portals, I decided to try something different.  
+
+So I built a **“Sh*t Blaster”** tool that submits one application to *all* accelerators at once. This post explains the problem, the hack, and the math behind it.  
+
+## The Problem
+
+Fill out one accelerator app, and you’ve basically filled them all:  
+
+- Same questions  
+- Same SAFE notes  
+- Same exact promises of “network, mentorship, and exclusivity” (*bla bla bla*)  
+
+Founders waste weeks repeating themselves while accelerators pretend they’re each unique.  
+
+## The Hack
+
+After 2 years of slogging through this, I finally snapped and hacked together a tool:  
+
+- Upload your YC app once  
+- Blast it to 20+ accelerators (and counting)  
+- Save hours of tedious copy-paste  
+
+It’s still buggy, but it works. Think of it as a “Sh*t Blaster 3000” for startup applications.  
+
+## The Math
+
+Here’s the reasoning:  
+
+1. If accelerators are honest about ~1% acceptance rates...  
+2. And my app is *average* (just acceptable)...  
+3. Then sending more apps should statistically improve my odds.  
+
+If my app is garbage, of course, then sending 100 copies won’t change much. But if it’s borderline, this approach might tilt the math in my favor.  
+
+### Code Blocks (for fun)
+
+```javascript
+function acceptanceChance(appQuality, appsSent) {
+  if (appQuality === "garbage") return 0;
+  return 1 - Math.pow(0.99, appsSent);
+}
+
+console.log(acceptanceChance("average", 100));
+// ~63% chance with 100 tries
