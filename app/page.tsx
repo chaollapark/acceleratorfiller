@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ShitTierBlasterPopup from "./components/ShitTierBlasterPopup";
-import { useAnalytics } from "./hooks/usePostHog";
+import FreeTrialAnimation from "./components/FreeTrialAnimation";
 
 const MAX_MB = 15;
 const VIDEO_MAX_MB = 100;
@@ -29,32 +28,171 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [uploaded, setUploaded] = useState(false);
   const [uploadId, setUploadId] = useState<string | null>(null);
-  const [showShitTierPopup, setShowShitTierPopup] = useState(false);
+  const [showFreeTrial, setShowFreeTrial] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTrialUsedPopup, setShowTrialUsedPopup] = useState(false);
 
-  const { trackPageView } = useAnalytics();
-
-  // Show popup after 10 seconds (only if not previously dismissed)
+  // Listen for payment trigger from FreeTrialAnimation
   useEffect(() => {
-    trackPageView('home_page');
+    const handlePaymentTrigger = async () => {
+      if (uploadId) {
+        startCheckoutWithUpload();
+      } else {
+        setLoading(true);
+        try {
+          await uploadContentThenCheckout();
+        } catch (error) {
+          alert(error instanceof Error ? error.message : "Upload failed");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-    try {
-      const hasDismissed = localStorage.getItem('shitTierPopupDismissed');
-      if (hasDismissed) return;
-    } catch {
-      // SSR/paranoid try-catch: localStorage might not exist in bizarre universes
+    window.addEventListener('triggerPayment', handlePaymentTrigger);
+    return () => window.removeEventListener('triggerPayment', handlePaymentTrigger);
+  }, [uploadId, file, demoVideo, presentationVideo, pastedContent]);
+
+  const uploadContentThenCheckout = async () => {
+    let primaryUploadId: string | null = null;
+
+    // Handle application file upload if provided
+    if (file) {
+      if (!ALLOWED.includes(file.type)) throw new Error("Only PDF or DOC/DOCX are allowed for application files.");
+      if (file.size > MAX_MB * 1024 * 1024) throw new Error(`Max size is ${MAX_MB} MB for application files.`);
+
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: file.name, 
+          mime: file.type,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) throw new Error("Upload failed.");
+      const { url, key } = await res.json();
+
+      const put = await fetch(url, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+      if (!put.ok) throw new Error("Upload failed.");
+      
+      primaryUploadId = key;
     }
 
-    const timer = setTimeout(() => {
-      setShowShitTierPopup(true);
-    }, 10000);
+    // Handle demo video upload if provided
+    if (demoVideo) {
+      if (!VIDEO_ALLOWED.includes(demoVideo.type)) throw new Error("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
+      if (demoVideo.size > VIDEO_MAX_MB * 1024 * 1024) throw new Error(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
 
-    return () => clearTimeout(timer);
-  }, [trackPageView]);
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: `demo_${demoVideo.name}`, 
+          mime: demoVideo.type,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) throw new Error("Upload failed.");
+      const { url, key } = await res.json();
+
+      const put = await fetch(url, { method: "PUT", body: demoVideo, headers: { "Content-Type": demoVideo.type } });
+      if (!put.ok) throw new Error("Upload failed.");
+    }
+
+    // Handle presentation video upload if provided
+    if (presentationVideo) {
+      if (!VIDEO_ALLOWED.includes(presentationVideo.type)) throw new Error("Only MP4, MOV, AVI, WMV, FLV, or WebM are allowed for videos.");
+      if (presentationVideo.size > VIDEO_MAX_MB * 1024 * 1024) throw new Error(`Max size is ${VIDEO_MAX_MB} MB for videos.`);
+
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: `presentation_${presentationVideo.name}`, 
+          mime: presentationVideo.type,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) throw new Error("Upload failed.");
+      const { url, key } = await res.json();
+
+      const put = await fetch(url, { method: "PUT", body: presentationVideo, headers: { "Content-Type": presentationVideo.type } });
+      if (!put.ok) throw new Error("Upload failed.");
+    }
+
+    // Handle pasted content if provided
+    if (pastedContent.trim()) {
+      const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          filename: "application.txt", 
+          mime: "text/plain",
+          content: pastedContent,
+          prePayment: true 
+        })
+      });
+      if (!res.ok) throw new Error("Upload failed.");
+      const { key } = await res.json();
+      
+      // If no file was uploaded, use the text content as primary upload
+      if (!primaryUploadId) {
+        primaryUploadId = key;
+      }
+    }
+
+    // Set the primary upload ID and start checkout
+    if (primaryUploadId) {
+      setUploadId(primaryUploadId);
+      
+      // Start checkout with upload ID
+      const res = await fetch("/api/create-checkout-session", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uploadId: primaryUploadId })
+      });
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+      else throw new Error("Checkout failed.");
+    } else {
+      throw new Error("No content to upload.");
+    }
+  };
+
+  const handleOpenDemo = () => {
+    // Prevent demo if already used
+    try {
+      const trialUsed = typeof window !== 'undefined' ? localStorage.getItem('freeTrialUsed') : null;
+      if (trialUsed) {
+        setShowTrialUsedPopup(true);
+        return;
+      }
+    } catch {}
+
+    // Require same preconditions as main application: some content AND terms accepted
+    const hasAnyContent = !!file || !!demoVideo || !!presentationVideo || !!pastedContent.trim();
+    if (!hasAnyContent) {
+      setStatus("Please upload a file, paste content, or upload videos before trying the demo.");
+      return;
+    }
+    if (!termsAccepted) {
+      setStatus("Please accept Terms & Privacy to try the demo.");
+      return;
+    }
+
+    setShowFreeTrial(true);
+    try { localStorage.setItem('freeTrialUsed', 'true'); } catch {}
+  };
 
   const startCheckout = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/create-checkout-session", { method: "POST" });
+      const res = await fetch("/api/create-checkout-session", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
       const data = await res.json();
       if (data?.url) window.location.href = data.url;
       else alert("Checkout failed.");
@@ -384,7 +522,7 @@ export default function HomePage() {
             {/* Terms and Submit */}
             <div className="space-y-6">
               <label className="flex items-start gap-3 text-sm">
-                <input type="checkbox" required className="enhanced-checkbox mt-1" />
+                <input type="checkbox" required className="enhanced-checkbox mt-1" onChange={(e) => setTermsAccepted(e.target.checked)} />
                 <span className="text-slate-700">
                   I agree to the{" "}
                   <a className="text-blue-600 hover:text-blue-700 underline font-medium" href="/legal" target="_blank">Terms & Privacy</a>.
@@ -392,8 +530,14 @@ export default function HomePage() {
               </label>
               
               <button type="submit" className="btn btn-primary w-full text-lg py-4">
-                Submit application
+                Submit application - it's only €99
               </button>
+
+              <div className="text-center mt-4">
+                <button type="button" onClick={handleOpenDemo} className="text-blue-600 hover:text-blue-700 underline font-medium">
+                  Or try a free demo
+                </button>
+              </div>
             </div>
           </form>
 
@@ -404,6 +548,60 @@ export default function HomePage() {
           )}
         </div>
       </div>
+
+      {showFreeTrial && (
+        <div className="fixed inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center">
+          <div className="relative">
+            <button 
+              onClick={() => setShowFreeTrial(false)} 
+              className="absolute top-0 right-0 m-4 text-2xl"
+              data-close-trial
+            >
+              &times;
+            </button>
+            <FreeTrialAnimation />
+          </div>
+        </div>
+      )}
+
+      {showTrialUsedPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowTrialUsedPopup(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md mx-4 p-8 text-center">
+            <button
+              onClick={() => setShowTrialUsedPopup(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold">You already used your trial</h3>
+              <p className="text-slate-600">Unlock full access and send your application to 32+ accelerators.</p>
+              <button
+                onClick={async () => {
+                  if (uploadId) {
+                    // Already uploaded, just go to checkout
+                    startCheckoutWithUpload();
+                  } else {
+                    // Need to upload first, then checkout
+                    setLoading(true);
+                    try {
+                      await uploadContentThenCheckout();
+                    } finally {
+                      setLoading(false);
+                    }
+                  }
+                }}
+                className="btn btn-primary w-full text-lg py-3"
+                disabled={loading}
+              >
+                {loading ? "Processing…" : "Pay €99 for full plan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Accelerators Section */}
       <section className="mb-16">
@@ -496,17 +694,6 @@ export default function HomePage() {
           <a className="text-blue-600 hover:text-blue-700 underline" href="/legal">Terms, Privacy & GDPR</a>
         </p>
       </footer>
-
-      {/* Shit Tier Blaster Popup */}
-      <ShitTierBlasterPopup
-        isOpen={showShitTierPopup}
-        onClose={() => {
-          setShowShitTierPopup(false);
-          try {
-            localStorage.setItem('shitTierPopupDismissed', 'true');
-          } catch {}
-        }}
-      />
     </main>
   );
 } 
