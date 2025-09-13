@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import FreeTrialAnimation from "./components/FreeTrialAnimation";
 
 const MAX_MB = 15;
 const VIDEO_MAX_MB = 100;
@@ -27,6 +28,34 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [uploaded, setUploaded] = useState(false);
   const [uploadId, setUploadId] = useState<string | null>(null);
+  const [showFreeTrial, setShowFreeTrial] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTrialUsedPopup, setShowTrialUsedPopup] = useState(false);
+
+  const handleOpenDemo = () => {
+    // Prevent demo if already used
+    try {
+      const trialUsed = typeof window !== 'undefined' ? localStorage.getItem('freeTrialUsed') : null;
+      if (trialUsed) {
+        setShowTrialUsedPopup(true);
+        return;
+      }
+    } catch {}
+
+    // Require same preconditions as main application: some content AND terms accepted
+    const hasAnyContent = !!file || !!demoVideo || !!presentationVideo || !!pastedContent.trim();
+    if (!hasAnyContent) {
+      setStatus("Please upload a file, paste content, or upload videos before trying the demo.");
+      return;
+    }
+    if (!termsAccepted) {
+      setStatus("Please accept Terms & Privacy to try the demo.");
+      return;
+    }
+
+    setShowFreeTrial(true);
+    try { localStorage.setItem('freeTrialUsed', 'true'); } catch {}
+  };
 
   const startCheckout = async () => {
     setLoading(true);
@@ -361,7 +390,7 @@ export default function HomePage() {
             {/* Terms and Submit */}
             <div className="space-y-6">
               <label className="flex items-start gap-3 text-sm">
-                <input type="checkbox" required className="enhanced-checkbox mt-1" />
+                <input type="checkbox" required className="enhanced-checkbox mt-1" onChange={(e) => setTermsAccepted(e.target.checked)} />
                 <span className="text-slate-700">
                   I agree to the{" "}
                   <a className="text-blue-600 hover:text-blue-700 underline font-medium" href="/legal" target="_blank">Terms & Privacy</a>.
@@ -371,6 +400,12 @@ export default function HomePage() {
               <button type="submit" className="btn btn-primary w-full text-lg py-4">
                 Submit application
               </button>
+
+              <div className="text-center mt-4">
+                <button type="button" onClick={handleOpenDemo} className="text-blue-600 hover:text-blue-700 underline font-medium">
+                  Or try a free demo
+                </button>
+              </div>
             </div>
           </form>
 
@@ -381,6 +416,41 @@ export default function HomePage() {
           )}
         </div>
       </div>
+
+      {showFreeTrial && (
+        <div className="fixed inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center">
+          <div className="relative">
+            <button onClick={() => setShowFreeTrial(false)} className="absolute top-0 right-0 m-4 text-2xl">&times;</button>
+            <FreeTrialAnimation />
+          </div>
+        </div>
+      )}
+
+      {showTrialUsedPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowTrialUsedPopup(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md mx-4 p-8 text-center">
+            <button
+              onClick={() => setShowTrialUsedPopup(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold">You already used your trial</h3>
+              <p className="text-slate-600">Unlock full access and send your application to 32+ accelerators.</p>
+              <button
+                onClick={startCheckout}
+                className="btn btn-primary w-full text-lg py-3"
+                disabled={loading}
+              >
+                {loading ? "Processing…" : "Pay €99 for full plan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Accelerators Section */}
       <section className="mb-16">
