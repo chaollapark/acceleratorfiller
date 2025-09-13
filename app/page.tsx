@@ -13,11 +13,11 @@ const ALLOWED = [
 ];
 const VIDEO_ALLOWED = [
   "video/mp4",
-  "video/mov",
-  "video/avi",
-  "video/wmv",
-  "video/flv",
-  "video/webm"
+  "video/webm",
+  "video/quicktime", // .mov
+  "video/x-msvideo", // .avi
+  "video/x-ms-wmv",  // .wmv
+  "video/x-flv"      // .flv
 ];
 
 export default function HomePage() {
@@ -51,19 +51,6 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [trackPageView]);
 
-  const startCheckout = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/create-checkout-session", { method: "POST" });
-      const data = await res.json();
-      if (data?.url) window.location.href = data.url;
-      else alert("Checkout failed.");
-    } catch {
-      alert("Checkout failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const startCheckoutWithUpload = async () => {
     if (!uploadId) return;
@@ -139,6 +126,9 @@ export default function HomePage() {
 
       const put = await fetch(url, { method: "PUT", body: demoVideo, headers: { "Content-Type": demoVideo.type } });
       if (!put.ok) return setStatus("Upload failed.");
+      
+      // Set as primary if no other primary is set
+      if (!primaryUploadId) primaryUploadId = key;
     }
 
     // Handle presentation video upload if provided
@@ -161,6 +151,9 @@ export default function HomePage() {
 
       const put = await fetch(url, { method: "PUT", body: presentationVideo, headers: { "Content-Type": presentationVideo.type } });
       if (!put.ok) return setStatus("Upload failed.");
+      
+      // Set as primary if no other primary is set
+      if (!primaryUploadId) primaryUploadId = key;
     }
 
     // Handle pasted content if provided
